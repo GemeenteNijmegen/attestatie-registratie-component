@@ -43,6 +43,9 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
+  "dependencies": {
+    "@ver-id/node-client": "^0.6.0"
+  },
   "main": "lib/index.js",
   "license": "EUPL-1.2",
   "publishConfig": {
