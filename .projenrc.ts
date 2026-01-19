@@ -7,6 +7,14 @@ const project = new GemeenteNijmegenTsPackage({
   projenrcTs: true,
   repository: 'https://github.com/GemeenteNijmegen/attestatie-registratie-component',
   npmTrustedPublishing: true,
+  releaseWorkflowEnv: {
+    VER_ID_GH_TOKEN: '${{ secrets.VER_ID_GH_TOKEN }}',
+  },
+  buildWorkflowOptions: {
+    env: {
+      VER_ID_GH_TOKEN: '${{ secrets.VER_ID_GH_TOKEN }}',
+    }
+  },
   deps: [
     '@ver-id/node-client',
     'dotenv'
