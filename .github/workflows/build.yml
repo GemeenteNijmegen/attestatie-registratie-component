@@ -13,13 +13,14 @@ jobs:
       self_mutation_happened: ${{ steps.self_mutation.outputs.self_mutation_happened }}
     env:
       CI: "true"
-      VER_ID_GH_TOKEN: ${{ secrets.VER_ID_GH_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Set VER_ID_GH_TOKEN
+        run: echo "VER_ID_GH_TOKEN=${{ secrets.VER_ID_GH_TOKEN }}" >> $GITHUB_ENV
       - name: Install dependencies
         run: yarn install --check-files
       - name: build

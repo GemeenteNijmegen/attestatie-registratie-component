@@ -19,7 +19,6 @@ jobs:
       tag_exists: ${{ steps.check_tag_exists.outputs.exists }}
     env:
       CI: "true"
-      VER_ID_GH_TOKEN: ${{ secrets.VER_ID_GH_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -29,6 +28,8 @@ jobs:
         run: |-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Set VER_ID_GH_TOKEN
+        run: echo "VER_ID_GH_TOKEN=${{ secrets.VER_ID_GH_TOKEN }}" >> $GITHUB_ENV
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
       - name: release
