@@ -7,6 +7,7 @@ const project = new GemeenteNijmegenTsPackage({
   projenrcTs: true,
   repository: 'https://github.com/GemeenteNijmegen/attestatie-registratie-component',
   npmTrustedPublishing: true,
+  // packageManager: NodePackageManager.NPM, 
   workflowBootstrapSteps: [
     {
       name: 'Setup GitHub Packages auth',

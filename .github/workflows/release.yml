@@ -19,7 +19,6 @@ jobs:
       tag_exists: ${{ steps.check_tag_exists.outputs.exists }}
     env:
       CI: "true"
-      VER_ID_GH_TOKEN: ${{ secrets.VER_ID_GH_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -29,8 +28,10 @@ jobs:
         run: |-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Setup .npmrc for GitHub Packages
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.VER_ID_GH_TOKEN }}" >> .npmrc
+      - name: Setup GitHub Packages auth
+        env:
+          VER_ID_GH_TOKEN: ${{ secrets.VER_ID_GH_TOKEN }}
+        run: yarn config set "//npm.pkg.github.com/:_authToken" "${VER_ID_GH_TOKEN}"
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
       - name: release
