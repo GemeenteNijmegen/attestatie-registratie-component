@@ -1,21 +1,9 @@
 import { IssuanceClientConfig, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
-
-export interface AttestationService {
-
-  /**
-   * @returns The url to redirect the user to for a oauth flow
-   */
-  intent(payload: any): Promise<string>;
-
-  // TODO part two of the flow... (use authorization code for obtaining JWT)
-  // authorize(code): Promise<AttestationServiceResponse>;
-}
-
+import { CredentialAttribute } from './AttestationService';
 
 export class VerIdAttestationService {
 
-
-  async intent(_payload: any) {
+  async intent(payload: CredentialAttribute[]) {
 
     const config: IssuanceClientConfig = {
       issuerUri: process.env.VER_ID_ISSUER_URL!,
@@ -32,14 +20,13 @@ export class VerIdAttestationService {
     const clientSecret = process.env.VER_ID_CLIENT_SECRET!;
 
     // Build intent payload
-
-    // TODO set payload
     const intentPayload: IssuanceIntentPayload = {
       payload: {
-        data: [
-          { attributeUuid: '1ac22d17-9c8a-493f-8a27-20f89fcec2c1', value: '<First names>' },
-          { attributeUuid: '3d3e898a-4122-45d8-b42f-4d74c8143116', value: '<Surname>' },
-        ],
+        // data: [
+        //   { attributeUuid: '1ac22d17-9c8a-493f-8a27-20f89fcec2c1', value: '<First names>' },
+        //   { attributeUuid: '3d3e898a-4122-45d8-b42f-4d74c8143116', value: '<Surname>' },
+        // ],
+        data: payload,
       },
     };
 
@@ -58,6 +45,10 @@ export class VerIdAttestationService {
     });
 
     return userUrl.issuanceUrl;
+  }
+
+  async authorize(code: string) {
+    console.debug('Calling VerID to obtain the access_token using', code);
   }
 
 }

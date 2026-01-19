@@ -18,6 +18,8 @@ const project = new GemeenteNijmegenTsPackage({
   deps: [
     '@ver-id/node-client',
     'dotenv',
+    'jsonpath',
+    '@types/jsonpath',
   ],
   jestOptions: {
     jestConfig: {

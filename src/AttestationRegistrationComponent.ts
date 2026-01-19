@@ -1,8 +1,11 @@
+import { AttestationService } from './attestation-service/AttestationService';
 import { AttestationRequest } from './AttestationRequest';
-import { AttestationService } from './AttestationService';
+import { ProductenService } from './producten/ProductenService';
+import { createStandplaatsvergunningCredential } from './producten/Standplaatsvergunning';
 
 export interface AttestatieRegestratieComponentOptions {
-  readonly attestationService: AttestationService;
+  readonly attestationService?: AttestationService;
+  readonly productenService?: ProductenService;
 }
 
 export class AttestatieRegestratieComponent {
@@ -11,17 +14,26 @@ export class AttestatieRegestratieComponent {
 
   /**
    * Note: requested by the portal backend (should be protected)
-   * @param _request
+   * @param request
    * @returns
    */
-  async start(_request: AttestationRequest) {
-    // Call open-product to get prodcut
-    // Verify ownership of product
-    // Map to attestation
-    // call Ver.ID and return the url
-    return this.options.attestationService.intent({
-      attribute1: { en: 'test', nl: test },
-    });
+  async start(request: AttestationRequest) {
+
+    if (!this.options.productenService || !this.options.attestationService) {
+      throw Error('Incorrect config provided');
+    }
+
+    // 1. Call open-product to get prodcut
+    const product = await this.options.productenService.getProduct(request.id);
+
+    // 2. Verify ownership of product (only possible if we have the auth context of the user)
+    // As this is a backend call we can ignore this for now.
+
+    // 3. Map to attestation
+    const kaartje = createStandplaatsvergunningCredential(product);
+
+    // 4. Call Ver.ID and return the url
+    return this.options.attestationService.intent(kaartje);
   }
 
   /**
@@ -29,9 +41,22 @@ export class AttestatieRegestratieComponent {
    * @param _request
    */
   async callback(_request: AttestationRequest) {
+
+    if (!this.options.productenService || !this.options.attestationService) {
+      throw Error('Incorrect config provided');
+    }
+
     // Get jwt token from Ver.ID using auth code
     // Parse JWT and store revocation key
     // Redirect user to mijn-nijmegen.
+  }
+
+  /**
+   * For testing purposes
+   * @returns
+   */
+  hello() {
+    return 'hello from ARC!';
   }
 
 }

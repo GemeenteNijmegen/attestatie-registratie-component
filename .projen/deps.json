@@ -76,11 +76,19 @@
       "type": "build"
     },
     {
+      "name": "@types/jsonpath",
+      "type": "runtime"
+    },
+    {
       "name": "@ver-id/node-client",
       "type": "runtime"
     },
     {
       "name": "dotenv",
+      "type": "runtime"
+    },
+    {
+      "name": "jsonpath",
       "type": "runtime"
     }
   ],

@@ -44,8 +44,10 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@types/jsonpath": "^0.2.4",
     "@ver-id/node-client": "^0.6.1",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "jsonpath": "^1.1.1"
   },
   "main": "lib/index.js",
   "license": "EUPL-1.2",
