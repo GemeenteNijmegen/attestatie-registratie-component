@@ -29,6 +29,19 @@ export class VerIdAttestationService implements AttestationService {
       issuerUri: this.config.issuerUri,
       client_id: this.config.client_id,
       redirectUri: this.config.redirectUri,
+      options: {
+        cacheManager: {
+          get(_: string) {
+            return null;
+          },
+          remove(_: string) {
+            return null;
+          },
+          save(_key: string, _value: string) {
+            return null;
+          },
+        },
+      },
     });
   }
 
