@@ -1,5 +1,5 @@
 import { GemeenteNijmegenTsPackage } from '@gemeentenijmegen/projen-project-type';
-import { Transform } from 'projen/lib/javascript';
+import { Transform, TypeScriptModuleResolution } from 'projen/lib/javascript';
 
 const project = new GemeenteNijmegenTsPackage({
   defaultReleaseBranch: 'main',
@@ -26,16 +26,15 @@ const project = new GemeenteNijmegenTsPackage({
     jestConfig: {
       roots: ['src', 'test'],
       setupFiles: ['dotenv/config'],
-      extensionsToTreatAsEsm: ['.ts'],
       transformIgnorePatterns: [
-        'node_modules/(?!@ver-id)',
+        'node_modules/(?!(@ver-id)/)',
       ],
       transform: {
         '^.+\\.tsx?$': new Transform('ts-jest', {
-          useESM: true,
-          tsconfig: {
-            module: 'ESNext',
-          },
+          tsconfig: 'tsconfig.dev.json',
+        }),
+        '^.+\\.m?jsx?$': new Transform('ts-jest', {
+          tsconfig: 'tsconfig.dev.json',
         }),
       },
       moduleNameMapper: {
@@ -46,6 +45,16 @@ const project = new GemeenteNijmegenTsPackage({
   tsconfig: {
     compilerOptions: {
       isolatedModules: true,
+      esModuleInterop: true,
+      allowSyntheticDefaultImports: true,
+    },
+  },
+  tsconfigDev: {
+    compilerOptions: {
+      module: 'CommonJS',
+      moduleResolution: TypeScriptModuleResolution.NODE,
+      esModuleInterop: true,
+      allowSyntheticDefaultImports: true,
     },
   },
 });
