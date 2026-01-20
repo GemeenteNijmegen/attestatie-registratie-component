@@ -64,11 +64,8 @@
     "setupFiles": [
       "dotenv/config"
     ],
-    "extensionsToTreatAsEsm": [
-      ".ts"
-    ],
     "transformIgnorePatterns": [
-      "node_modules/(?!@ver-id)"
+      "node_modules/(?!(@ver-id)/)"
     ],
     "transform": {
       "^.+\\.[t]sx?$": [
@@ -80,10 +77,13 @@
       "^.+\\.tsx?$": [
         "ts-jest",
         {
-          "useESM": true,
-          "tsconfig": {
-            "module": "ESNext"
-          }
+          "tsconfig": "tsconfig.dev.json"
+        }
+      ],
+      "^.+\\.m?jsx?$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.dev.json"
         }
       ]
     },

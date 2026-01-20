@@ -26,7 +26,8 @@
     "strictPropertyInitialization": true,
     "stripInternal": true,
     "target": "ES2020",
-    "isolatedModules": true
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "src/**/*.ts"

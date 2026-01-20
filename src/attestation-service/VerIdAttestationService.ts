@@ -1,4 +1,4 @@
-import { IssuanceClientConfig, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
+import { assertIssuanceJwtPayload, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
 import { CredentialAttribute } from './AttestationService';
 
 export interface VerIdAttestationServiceConfig {
@@ -22,21 +22,19 @@ export interface VerIdAttestationServiceConfig {
 
 export class VerIdAttestationService {
 
+  private issuanceClient: VeridIssuanceClient;
+
   constructor(private readonly config: VerIdAttestationServiceConfig) {
+    this.issuanceClient = new VeridIssuanceClient({
+      issuerUri: this.config.issuerUri,
+      client_id: this.config.client_id,
+      redirectUri: this.config.redirectUri,
+    });
   }
 
   async intent(payload: CredentialAttribute[]) {
 
-    const config: IssuanceClientConfig = {
-      issuerUri: this.config.issuerUri,
-      client_id: this.config.client_id,
-      redirectUri: this.config.redirectUri,
-    };
-
-    // Initialize the issuance client
-    const issuanceClient = new VeridIssuanceClient(config);
-
-    const codeChallenge = await issuanceClient.generateCodeChallenge();
+    const codeChallenge = await this.issuanceClient.generateCodeChallenge();
 
     // Build intent payload
     const intentPayload: IssuanceIntentPayload = {
@@ -50,14 +48,14 @@ export class VerIdAttestationService {
     };
 
     // Create intent with client authentication
-    const intentId = await issuanceClient.createIssuanceIntent(
+    const intentId = await this.issuanceClient.createIssuanceIntent(
       intentPayload,
       codeChallenge.codeChallenge,
       { client_secret: this.config.client_secret },
     );
 
     // Generate URL with intent
-    const userUrl = await issuanceClient.generateIssuanceUrl({
+    const userUrl = await this.issuanceClient.generateIssuanceUrl({
       intent_id: intentId,
       state: codeChallenge.state,
       codeChallenge: codeChallenge.codeChallenge,
@@ -66,8 +64,20 @@ export class VerIdAttestationService {
     return userUrl.issuanceUrl;
   }
 
-  async authorize(code: string) {
-    console.debug('Calling VerID to obtain the access_token using', code);
+  async authorize(params: URLSearchParams) {
+    const finalized = await this.issuanceClient.finalize({
+      callbackParams: params,
+      clientAuth: {
+        client_secret: this.config.client_secret,
+      },
+    });
+
+    const jwt = await this.issuanceClient.decode(finalized, assertIssuanceJwtPayload);
+    console.log('JWT', JSON.stringify(jwt.payload.output));
+    console.log('Issuing finalized, revocationKey', jwt.payload.output[0].revocationKeys);
+
+    // return jwt.payload.output[0].revocationKeys;
+
   }
 
 }
