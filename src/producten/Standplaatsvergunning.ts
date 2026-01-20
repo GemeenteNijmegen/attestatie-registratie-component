@@ -29,7 +29,7 @@ export function createStandplaatsvergunningCredential(product: any): CredentialA
     },
     {
       attributeUuid: '178a871d-7d8b-42eb-b77f-c64c193bc475',
-      value: product.producttype.uniforme_product_naam,
+      value: product.naam,
     },
     {
       attributeUuid: '4a6619c7-2db9-4663-8daf-3423098ae6c5',

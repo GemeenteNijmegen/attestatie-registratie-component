@@ -1,9 +1,9 @@
 {
   "uuid": "12126e1e-9bc1-4a30-b73e-5b5aa4ce8bc4",
   "url": "https://mijn-services-dev.csp-nijmegen.nl/open-product/producten/api/v1/producten/12126e1e-9bc1-4a30-b73e-5b5aa4ce8bc4",
-  "naam": "Test product via API",
-  "start_datum": "2026-01-19",
-  "eind_datum": "2026-01-21",
+  "naam": "Vergunning langs de 4-daagse route",
+  "start_datum": "2026-01-20",
+  "eind_datum": "2026-01-31",
   "aanmaak_datum": "2026-01-19T14:51:20.505685+01:00",
   "update_datum": "2026-01-19T14:51:20.505699+01:00",
   "producttype": {
@@ -51,7 +51,7 @@
   "frequentie": "eenmalig",
   "verbruiksobject": null,
   "dataobject": {
-    "location": "Korte Nieuwstraat 6 6511 PP NIJMEGEN"
+    "location": "St. Annastraat 250 6525 HA NIJMEGEN"
   },
   "aanvraag_zaak_urn": null,
   "aanvraag_zaak_url": "https://openzaak.woweb.app/zaken/api/v1/zaken/2d3ee8de-8eed-4453-a1e5-74472c9526bb"
