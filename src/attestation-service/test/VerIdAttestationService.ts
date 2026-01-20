@@ -6,10 +6,10 @@ import { VerIdAttestationService } from '../VerIdAttestationService';
 if (process.env.LIVE_TESTS !== 'true') {
   exit();
 } else {
-  run().then(() => console.log('Done!')).catch(error => console.error(error));
+  intent().then(() => console.log('Done!')).catch(error => console.error(error));
 }
 
-async function run() {
+async function intent() {
 
   console.log('Found clientid', process.env.VERID_CLIENT_ID);
 
