@@ -1,6 +1,22 @@
 import { assertIssuanceJwtPayload, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
 import { AttestationService, CredentialAttribute } from './AttestationService';
 
+class Cache {
+  private store: Record<string, string | null> = {};
+  get(key: string) {
+    return this.store[key];
+  }
+  remove(key: string) {
+    return this.store[key] = null;
+  }
+  save(key: string, value: string) {
+    return this.store[key] = value;
+  }
+}
+
+const cache = new Cache();
+
+
 export interface VerIdAttestationServiceConfig {
   /**
    * VerID url?
@@ -30,17 +46,7 @@ export class VerIdAttestationService implements AttestationService {
       client_id: this.config.client_id,
       redirectUri: this.config.redirectUri,
       options: {
-        cacheManager: {
-          get(_: string) {
-            return null;
-          },
-          remove(_: string) {
-            return null;
-          },
-          save(_key: string, _value: string) {
-            return null;
-          },
-        },
+        cacheManager: cache,
       },
     });
   }
