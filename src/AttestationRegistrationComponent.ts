@@ -46,6 +46,8 @@ export class AttestatieRegestratieComponent {
       throw Error('Incorrect config provided');
     }
 
+    // this.options.attestationService.authorize()
+
     // Get jwt token from Ver.ID using auth code
     // Parse JWT and store revocation key
     // Redirect user to mijn-nijmegen.
