@@ -46,7 +46,7 @@ export class AttestatieRegestratieComponent {
       throw Error('Incorrect config provided');
     }
 
-    console.log("Callback request", request);
+    console.log('Callback request', request);
 
     // TODO _request is not the correct param, we need the actual url params of the request
     // TODO get parameters from url
