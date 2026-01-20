@@ -8,7 +8,7 @@ export interface AttestationService {
    * Calls the oauth service that attested for us and check if the session is succesful
    * @param code
    */
-  authorize(code: string): Promise<void>;
+  authorize(params: URLSearchParams): Promise<void>;
 }
 
 /**

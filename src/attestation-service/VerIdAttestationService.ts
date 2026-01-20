@@ -1,5 +1,5 @@
 import { assertIssuanceJwtPayload, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
-import { CredentialAttribute } from './AttestationService';
+import { AttestationService, CredentialAttribute } from './AttestationService';
 
 export interface VerIdAttestationServiceConfig {
   /**
@@ -20,7 +20,7 @@ export interface VerIdAttestationServiceConfig {
   client_secret: string;
 }
 
-export class VerIdAttestationService {
+export class VerIdAttestationService implements AttestationService {
 
   private issuanceClient: VeridIssuanceClient;
 
