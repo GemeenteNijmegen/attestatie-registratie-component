@@ -40,17 +40,23 @@ export class AttestatieRegestratieComponent {
    * Note: requested by the user's browser
    * @param _request
    */
-  async callback(_request: AttestationRequest) {
+  async callback(request: any) {
 
     if (!this.options.productenService || !this.options.attestationService) {
       throw Error('Incorrect config provided');
     }
+
+    console.log("Callback request", request);
+
+    // TODO _request is not the correct param, we need the actual url params of the request
+    // TODO get parameters from url
 
     // this.options.attestationService.authorize()
 
     // Get jwt token from Ver.ID using auth code
     // Parse JWT and store revocation key
     // Redirect user to mijn-nijmegen.
+
   }
 
   /**
