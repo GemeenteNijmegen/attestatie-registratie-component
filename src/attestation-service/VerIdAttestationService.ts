@@ -40,11 +40,12 @@ export class VerIdAttestationService implements AttestationService {
 
   private issuanceClient: VeridIssuanceClient;
 
-  constructor(private readonly config: VerIdAttestationServiceConfig) {
-    this.issuanceClient = new VeridIssuanceClient({
+  constructor(private readonly config: VerIdAttestationServiceConfig, issuanceClient?: VeridIssuanceClient) {
+    this.issuanceClient = issuanceClient ?? new VeridIssuanceClient({
       issuerUri: this.config.issuerUri,
       client_id: this.config.client_id,
       redirectUri: this.config.redirectUri,
+      // TODO: make this configurable, this is not a production ready implementation
       options: {
         cacheManager: cache,
       },
@@ -94,9 +95,7 @@ export class VerIdAttestationService implements AttestationService {
     const jwt = await this.issuanceClient.decode(finalized, assertIssuanceJwtPayload);
     console.log('JWT', JSON.stringify(jwt.payload.output));
     console.log('Issuing finalized, revocationKey', jwt.payload.output[0].revocationKeys);
-
+    // TODO: implement revocationKeys as response and test it
     // return jwt.payload.output[0].revocationKeys;
-
   }
-
 }
