@@ -1,6 +1,7 @@
+import { Product } from './ProductenService';
 import { CredentialAttribute } from '../attestation-service/AttestationService';
 
-export function createStandplaatsvergunningCredential(product: any): CredentialAttribute[] {
+export function createStandplaatsvergunningCredential(product: Product): CredentialAttribute[] {
 
   return [
     {

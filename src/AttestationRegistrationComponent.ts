@@ -57,8 +57,8 @@ export class AttestatieRegestratieComponent {
     // Parse JWT and store revocation key
     // Redirect user to mijn-nijmegen.
 
+    // TODO: proper error handling
     return !JSON.stringify(request).toLocaleLowerCase().includes('error');
-
   }
 
   /**
