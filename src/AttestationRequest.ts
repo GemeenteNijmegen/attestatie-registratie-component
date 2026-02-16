@@ -1,6 +1,7 @@
 
 
 export interface AttestationRequest {
-  type: 'producten';
-  id: string;
+  readonly type: 'producten';
+  readonly id: string;
+  readonly token: string;
 }

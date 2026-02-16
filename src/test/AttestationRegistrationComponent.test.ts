@@ -2,6 +2,7 @@
 import { VerIdAttestationService } from '../attestation-service/VerIdAttestationService';
 import { AttestatieRegestratieComponent } from '../AttestationRegistrationComponent';
 import { AttestationRequest } from '../AttestationRequest';
+import { TokenVerification } from '../auth/TokenVerification';
 import { Product } from '../producten/ProductenService';
 
 // Keep this for later use as it works...
@@ -28,11 +29,19 @@ jest.mock('../attestation-service/VerIdAttestationService', () => ({
   }),
 }));
 
+jest.mock('../auth/TokenVerification', () => ({
+  TokenVerification: jest.fn().mockImplementation(() => ({
+    verify: jest.fn(),
+  })),
+}));
+
 describe('AttestatieRegestratieComponent', () => {
   let component: AttestatieRegestratieComponent;
+  let mockedAttestationService: VerIdAttestationService;
+  let mockedProductenService: any;
 
   beforeEach(() => {
-    const mockedAttestationService = new VerIdAttestationService({
+    mockedAttestationService = new VerIdAttestationService({
       client_id: '',
       client_secret: '',
       issuerUri: '',
@@ -56,7 +65,7 @@ describe('AttestatieRegestratieComponent', () => {
         },
       ],
     };
-    const mockedProductenService = {
+    mockedProductenService = {
       getProduct: jest.fn().mockImplementation(() => {
         return Promise.resolve(mockedProduct);
       }),
@@ -69,8 +78,37 @@ describe('AttestatieRegestratieComponent', () => {
 
   describe('start', () => {
     it('should handle request', async () => {
-      const request = {} as AttestationRequest;
+      const request = {
+        token: 'valid-token',
+      } as AttestationRequest;
       await expect(component.start(request)).resolves.toBe('http://example.com');
+    });
+
+    it('should throw error when token is missing', async () => {
+      const request = {} as AttestationRequest;
+      await expect(component.start(request)).rejects.toThrow('Authentication token is missing');
+    });
+
+    it('should throw error when token is invalid', async () => {
+      const request = {
+        token: 'invalid-token',
+      } as AttestationRequest;
+
+      const MockedTokenVerification = TokenVerification as jest.Mock<TokenVerification>;
+      const mockVerify = jest.fn().mockImplementation(() => {
+        throw new Error('Invalid token');
+      });
+      MockedTokenVerification.mockImplementation(() => ({
+        verify: mockVerify,
+      } as unknown as TokenVerification));
+
+      // Re-instantiate component to pick up new mock
+      const componentWithInvalidToken = new AttestatieRegestratieComponent({
+        attestationService: mockedAttestationService,
+        productenService: mockedProductenService,
+      });
+
+      await expect(componentWithInvalidToken.start(request)).rejects.toThrow('Invalid token');
     });
   });
 

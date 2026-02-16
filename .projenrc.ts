@@ -3,7 +3,7 @@ import { Transform, TypeScriptModuleResolution } from 'projen/lib/javascript';
 
 const project = new GemeenteNijmegenTsPackage({
   defaultReleaseBranch: 'main',
-  devDeps: ['@gemeentenijmegen/projen-project-type'],
+  devDeps: ['@gemeentenijmegen/projen-project-type', '@types/jsonwebtoken'],
   name: '@gemeentenijmegen/attestatie-registratie-component',
   projenrcTs: true,
   repository: 'https://github.com/GemeenteNijmegen/attestatie-registratie-component',
@@ -19,8 +19,10 @@ const project = new GemeenteNijmegenTsPackage({
   deps: [
     '@ver-id/node-client',
     'dotenv',
+    'jsonwebtoken',
   ],
   jestOptions: {
+
     jestConfig: {
       roots: ['src', 'test'],
       setupFiles: ['dotenv/config'],
