@@ -3,14 +3,14 @@ import * as jwt from 'jsonwebtoken';
 export class TokenVerification {
   private readonly secret: string;
 
-  constructor() {
-    this.secret = process.env.JWT_SECRET || 'secret';
+  constructor(jwtSecret: string) {
+    this.secret = jwtSecret;
+    if (!this.secret) {
+      throw new Error('JWT secret is not set');
+    }
   }
 
   verify(token: string): string | jwt.JwtPayload {
-    if (!process.env.JWT_SECRET) {
-      console.warn('Warning: JWT_SECRET is not set, using default "secret"');
-    }
     return jwt.verify(token, this.secret);
   }
 }
