@@ -20,7 +20,6 @@ export interface Product {
 export class ProductenService {
 
   async getProduct(_productUuid: string): Promise<Product> {
-    return product;
+    return product as Product;
   }
-
 }

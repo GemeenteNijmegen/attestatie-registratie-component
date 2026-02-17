@@ -20,6 +20,7 @@ This project is in active development and is definitly not production ready. If 
 ## Configuration
 
 - The `VER_ID_GH_TOKEN` environment variable is required as long as the ver.id SDK npm package is not publicly released.
+- `JWT_SECRET`: Secret key used to verify the JWT token sent by the portal.
 
 To be added:
 - Authentication token for the open product API
@@ -37,7 +38,9 @@ sequenceDiagram
 
     User->>MN: Log in
     User->>MN: Click 'load product into id-wallet'
-    MN->>ARC: Redirect to /arc/start<br/>(with auth + product code)
+    MN->>MN: Generate JWT with shared secret
+    MN->>ARC: Redirect to /arc/start<br/>(with auth token + product code)
+    ARC->>ARC: Verify JWT signature
     ARC->>VID: Create attestation 'intent'
     VID-->>ARC: Intent created
     ARC->>User: Redirect to ver.id

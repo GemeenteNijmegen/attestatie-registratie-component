@@ -1,11 +1,13 @@
 import { AttestationService } from './attestation-service/AttestationService';
 import { AttestationRequest } from './AttestationRequest';
+import { TokenVerification } from './auth/TokenVerification';
 import { ProductenService } from './producten/ProductenService';
 import { createStandplaatsvergunningCredential } from './producten/Standplaatsvergunning';
 
 export interface AttestatieRegestratieComponentOptions {
   readonly attestationService?: AttestationService;
   readonly productenService?: ProductenService;
+  readonly tokenVerification?: TokenVerification;
 }
 
 export class AttestatieRegestratieComponent {
@@ -22,6 +24,14 @@ export class AttestatieRegestratieComponent {
     if (!this.options.productenService || !this.options.attestationService) {
       throw Error('Incorrect config provided');
     }
+
+    if (!request.token) {
+      throw Error('Authentication token is missing');
+    }
+
+    // Verify token
+    const verifier = this.options.tokenVerification ?? new TokenVerification();
+    verifier.verify(request.token);
 
     // 1. Call open-product to get prodcut
     const product = await this.options.productenService.getProduct(request.id);
