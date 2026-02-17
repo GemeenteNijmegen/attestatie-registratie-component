@@ -20,7 +20,7 @@ This project is in active development and is definitly not production ready. If 
 ## Configuration
 
 - The `VER_ID_GH_TOKEN` environment variable is required as long as the ver.id SDK npm package is not publicly released.
-- `JWT_SECRET`: Secret key used to verify the JWT token sent by the portal.
+- By default the component uses a shared secret to verify the JWT token sent by the portal. This can be configured by providing a `jwtSecret` in the options. Alternatively, you can provide a `tokenVerification` instance in the options.
 
 To be added:
 - Authentication token for the open product API

@@ -3,15 +3,10 @@ import { TokenVerification } from '../TokenVerification';
 
 describe('TokenVerification Integration', () => {
   let verifier: TokenVerification;
-  const secret = 'secret'; // Default secret used in TokenVerification
+  const secret = 'secret';
 
   beforeEach(() => {
-    process.env.JWT_SECRET = secret;
-    verifier = new TokenVerification();
-  });
-
-  afterEach(() => {
-    delete process.env.JWT_SECRET;
+    verifier = new TokenVerification(secret);
   });
 
   it('should verify a valid token and return payload', () => {

@@ -8,6 +8,7 @@ export interface AttestatieRegestratieComponentOptions {
   readonly attestationService?: AttestationService;
   readonly productenService?: ProductenService;
   readonly tokenVerification?: TokenVerification;
+  readonly jwtSecret?: string;
 }
 
 export class AttestatieRegestratieComponent {
@@ -30,7 +31,7 @@ export class AttestatieRegestratieComponent {
     }
 
     // Verify token
-    const verifier = this.options.tokenVerification ?? new TokenVerification();
+    const verifier = this.options.tokenVerification ?? new TokenVerification(this.options.jwtSecret || '');
     verifier.verify(request.token);
 
     // 1. Call open-product to get prodcut
