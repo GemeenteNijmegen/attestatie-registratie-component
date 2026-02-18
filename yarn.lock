@@ -1146,10 +1146,10 @@
   resolved "https://registry.yarnpkg.com/@unrs/resolver-binding-win32-x64-msvc/-/resolver-binding-win32-x64-msvc-1.11.1.tgz#538b1e103bf8d9864e7b85cc96fa8d6fb6c40777"
   integrity sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g==
 
-"@ver-id/node-client@^0.7.1":
-  version "0.7.1"
-  resolved "https://npm.pkg.github.com/download/@ver-id/node-client/0.7.1/5234e53c7922df42bd781f823231edb9b538a852#5234e53c7922df42bd781f823231edb9b538a852"
-  integrity sha512-wTQPFc8cRLVm3hz22Kh5zdtrjkKHjLHkngWwd8V0ghjNsIcsI9B8cfQ5ROkj8+OLuBha6kyVDgJ51gT/NiUF9w==
+"@ver-id/node-client@^0.10.2":
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/@ver-id/node-client/-/node-client-0.10.2.tgz#893f169474a20ac7c25df6ab101e213aed0acbed"
+  integrity sha512-Iq+VDDe93N/bGuIBJrA2tHSjr/P9jMgOyArXaCDvAuS5ISL2PvDVjYGvqV5yGX2La/pX9/vuswsgZiQAEl3cZQ==
 
 JSONStream@^1.3.5:
   version "1.3.5"

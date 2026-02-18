@@ -45,7 +45,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@ver-id/node-client": "^0.7.1",
+    "@ver-id/node-client": "^0.10.2",
     "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.3"
   },
