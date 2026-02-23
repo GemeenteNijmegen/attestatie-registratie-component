@@ -13,7 +13,6 @@ jobs:
       self_mutation_happened: ${{ steps.self_mutation.outputs.self_mutation_happened }}
     env:
       CI: "true"
-      VER_ID_GH_TOKEN: ${{ secrets.VER_ID_GH_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5

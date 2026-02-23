@@ -1,20 +1,5 @@
-import { assertIssuanceJwtPayload, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
+import { assertIssuanceJwtPayload, ICacheManager, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
 import { AttestationService, CredentialAttribute } from './AttestationService';
-
-class Cache {
-  private store: Record<string, string | null> = {};
-  get(key: string) {
-    return this.store[key];
-  }
-  remove(key: string) {
-    return this.store[key] = null;
-  }
-  save(key: string, value: string) {
-    return this.store[key] = value;
-  }
-}
-
-const cache = new Cache();
 
 
 export interface VerIdAttestationServiceConfig {
@@ -34,6 +19,10 @@ export interface VerIdAttestationServiceConfig {
    * Client secret
    */
   client_secret: string;
+  /**
+   * Cache manager
+   */
+  cacheManager?: ICacheManager;
 }
 
 export class VerIdAttestationService implements AttestationService {
@@ -45,9 +34,8 @@ export class VerIdAttestationService implements AttestationService {
       issuerUri: this.config.issuerUri,
       client_id: this.config.client_id,
       redirectUri: this.config.redirectUri,
-      // TODO: make this configurable, this is not a production ready implementation
       options: {
-        cacheManager: cache,
+        cacheManager: this.config.cacheManager,
       },
     });
   }

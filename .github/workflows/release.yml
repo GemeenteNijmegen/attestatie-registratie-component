@@ -19,7 +19,6 @@ jobs:
       tag_exists: ${{ steps.check_tag_exists.outputs.exists }}
     env:
       CI: "true"
-      VER_ID_GH_TOKEN: ${{ secrets.VER_ID_GH_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
