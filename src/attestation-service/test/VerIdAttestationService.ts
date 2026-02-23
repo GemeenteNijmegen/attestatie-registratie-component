@@ -1,5 +1,6 @@
 
 import { exit } from 'node:process';
+import { MemoryStorageCacheManager } from '@ver-id/node-client';
 import { VerIdAttestationService } from '../VerIdAttestationService';
 
 
@@ -18,6 +19,7 @@ async function intent() {
     redirectUri: 'http://localhost:3000/callback',
     client_id: process.env.VERID_CLIENT_ID!,
     client_secret: process.env.VERID_CLIENT_SECRET!,
+    cacheManager: new MemoryStorageCacheManager(),
     // flow_id: 'dfe59333-c058-472a-b122-5a76e6d2b9d5',
   });
 
