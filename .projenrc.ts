@@ -8,7 +8,6 @@ const project = new GemeenteNijmegenTsPackage({
   projenrcTs: true,
   repository: 'https://github.com/GemeenteNijmegen/attestatie-registratie-component',
   npmTrustedPublishing: true,
-
   deps: [
     '@ver-id/node-client',
     'dotenv',
@@ -16,7 +15,6 @@ const project = new GemeenteNijmegenTsPackage({
     'zod',
   ],
   jestOptions: {
-
     jestConfig: {
       roots: ['src', 'test'],
       setupFiles: ['dotenv/config'],
