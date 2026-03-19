@@ -1,6 +1,6 @@
-import { IAttestatieFormatter } from './AttestatieFormatter';
 import { CredentialAttribute } from '../attestation-service/AttestationService';
 import { Product } from '../producten/ProductSchema';
+import { IAttestatieFormatter } from './AttestatieFormatter';
 
 export class StandplaatsvergunningAttestatieFormatter implements IAttestatieFormatter<Product> {
   format(product: Product): CredentialAttribute[] {
@@ -8,11 +8,11 @@ export class StandplaatsvergunningAttestatieFormatter implements IAttestatieForm
     const bsn = product.eigenaren[0]?.bsn;
     const eind_datum = product.eind_datum ?? '';
     const start_datum = product.start_datum ?? '';
+    const locatie = product.dataobject?.location as string ?? 'locatie onbekend';
 
     if (!bsn || !product.uuid) {
       throw new Error('Invalid product: missing required fields');
     }
-
 
     return [
       {
@@ -24,12 +24,12 @@ export class StandplaatsvergunningAttestatieFormatter implements IAttestatieForm
         value: product.uuid,
       },
       {
-        attributeUuid: 'e07557b5-1a88-4492-a54e-235eadecaa74',
-        value: '(party)tent',
+        attributeUuid: 'e07557b5-1a88-4492-a54e-235eadecaa74', // Locatie type?
+        value: 'Straat',
       },
       {
         attributeUuid: 'e56347da-15b9-476c-be5d-247a1115858b',
-        value: product.dataobject?.location?.toString() ?? 'locatie onbekend',
+        value: locatie,
       },
       {
         attributeUuid: '00894814-01dc-4498-ba57-f6e3494f4b22',
