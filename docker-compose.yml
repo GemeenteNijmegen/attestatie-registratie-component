@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  attestation-service:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - VERID_ISSUER_URI=${VERID_ISSUER_URI}
+      - VERID_REDIRECT_URI=${VERID_REDIRECT_URI}
+      - VERID_CLIENT_ID=${VERID_CLIENT_ID}
+      - VERID_CLIENT_SECRET=${VERID_CLIENT_SECRET}
+      - PORT=3000
