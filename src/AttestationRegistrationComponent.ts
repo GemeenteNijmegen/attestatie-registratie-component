@@ -51,17 +51,18 @@ export class AttestatieRegestratieComponent {
       throw Error('No authentication mechanism configured');
     }
 
-    // 1. Call open-product to get prodcut
-    const product = await this.options.productenService.getProduct(request.id);
 
-    // 2. Verify ownership of product (only possible if we have the auth context of the user)
-    // As this is a backend call we can ignore this for now.
+    if (request.type == "producten") {
+      // 1. Call open-product to get prodcut
+      const product = await this.options.productenService.getProduct(request.id);
+      // 2. Map to attestation (note: this is a secured endpoint, ownership is verified by portal)
+      const upl = product.producttype.uniforme_product_naam;
+      const kaartje = AttestatieFormatter.format(upl, product);
+      // 4. Call Ver.ID and return the url
+      return this.options.attestationService.intent(kaartje);
+    }
 
-    // 3. Map to attestation
-    const kaartje = AttestatieFormatter.format('standplaatsvergunning', product);
-
-    // 4. Call Ver.ID and return the url
-    return this.options.attestationService.intent(kaartje);
+    throw Error('Unknown attestation type' + request.type);
   }
 
   /**
