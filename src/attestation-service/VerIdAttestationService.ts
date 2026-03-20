@@ -1,4 +1,4 @@
-import { assertIssuanceJwtPayload, ICacheManager, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
+import { assertIssuanceV1JwtPayload, ICacheManager, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
 import { AttestationService, CredentialAttribute } from './AttestationService';
 
 
@@ -80,9 +80,9 @@ export class VerIdAttestationService implements AttestationService {
       },
     });
 
-    const jwt = await this.issuanceClient.decode(finalized, assertIssuanceJwtPayload);
+    const jwt = await this.issuanceClient.decode(finalized, assertIssuanceV1JwtPayload);
     console.log('JWT', JSON.stringify(jwt.payload.output));
-    console.log('Issuing finalized, revocationKey', jwt.payload.output[0].revocationKeys);
+
     // TODO: implement revocationKeys as response and test it
     // return jwt.payload.output[0].revocationKeys;
   }

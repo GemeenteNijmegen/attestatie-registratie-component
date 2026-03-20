@@ -52,7 +52,7 @@ export class AttestatieRegestratieComponent {
     }
 
 
-    if (request.type == "producten") {
+    if (request.type == 'producten') {
       // 1. Call open-product to get prodcut
       const product = await this.options.productenService.getProduct(request.id);
       // 2. Map to attestation (note: this is a secured endpoint, ownership is verified by portal)
@@ -62,7 +62,7 @@ export class AttestatieRegestratieComponent {
       return this.options.attestationService.intent(kaartje);
     }
 
-    throw Error('Unknown attestation type' + request.type);
+    throw Error(`Unknown attestation type: ${request.type}`);
   }
 
   /**

@@ -56,7 +56,7 @@ describe('AttestatieRegestratieComponent', () => {
       producttype: {
         uuid: 'e9522583-d61f-4232-8268-d1596a94bf2d',
         code: 'TEST',
-        uniforme_product_naam: 'Test Product',
+        uniforme_product_naam: 'standplaatsvergunning', // Should match a UPL formatter knwon in this project
       },
       dataobject: {
         location: 'Test Location',
@@ -85,6 +85,8 @@ describe('AttestatieRegestratieComponent', () => {
   describe('start', () => {
     it('should handle request', async () => {
       const request = {
+        id: '123',
+        type: 'producten',
         token: 'valid-token',
       } as AttestationRequest;
       await expect(component.start(request)).resolves.toBe('http://example.com');
@@ -97,6 +99,8 @@ describe('AttestatieRegestratieComponent', () => {
 
     it('should throw error when API key is invalid', async () => {
       const request = {
+        id: '123',
+        type: 'producten',
         token: 'invalid-token',
       } as AttestationRequest;
       await expect(component.start(request)).rejects.toThrow('Invalid API key');
@@ -116,6 +120,8 @@ describe('AttestatieRegestratieComponent', () => {
       });
 
       const request = {
+        id: '123',
+        type: 'producten',
         token: 'jwt-token',
       } as AttestationRequest;
 
