@@ -1,6 +1,6 @@
-import { CredentialMapping } from '../attestation-service/AttestationService';
 import { OverlijdensakteAttestatieFormatter } from './OverlijdensakteAttestatieFormatter';
 import { StandplaatsvergunningAttestatieFormatter } from './StandplaatsvergunningAttestatieFormatter';
+import { CredentialMapping } from '../attestation-service/AttestationService';
 
 /**
  * Allows us to define multiple product types

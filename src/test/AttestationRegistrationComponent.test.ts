@@ -42,7 +42,6 @@ describe('AttestatieRegestratieComponent', () => {
 
   beforeEach(() => {
     mockedAttestationService = new VerIdAttestationService({
-      client_id: '',
       client_secret: '',
       issuerUri: '',
       redirectUri: '',

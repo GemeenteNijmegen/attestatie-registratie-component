@@ -1,5 +1,5 @@
 import { ICacheManager, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
-import { AttestationService, CredentialAttribute } from './AttestationService';
+import { AttestationService, CredentialMapping } from './AttestationService';
 
 
 export interface VerIdAttestationServiceConfig {
@@ -23,11 +23,11 @@ export interface VerIdAttestationServiceConfig {
 
 export class VerIdAttestationService implements AttestationService {
 
-  constructor(private readonly config: VerIdAttestationServiceConfig) {
+  constructor(private readonly config: VerIdAttestationServiceConfig, private readonly issuanceClient?: VeridIssuanceClient) {
   }
 
   private getIssueanceClient(flowUuid: string) {
-    return new VeridIssuanceClient({
+    return this.issuanceClient ?? new VeridIssuanceClient({
       issuerUri: this.config.issuerUri,
       client_id: flowUuid,
       redirectUri: this.config.redirectUri,
@@ -37,15 +37,13 @@ export class VerIdAttestationService implements AttestationService {
     });
   }
 
-  async intent(payload: CredentialAttribute[], flowUuid: string) {
+  async intent(payload: CredentialMapping, flowUuid: string) {
     const verIdClient = this.getIssueanceClient(flowUuid);
     const codeChallenge = await verIdClient.generateCodeChallenge();
 
     // Build intent payload
     const intentPayload: IssuanceIntentPayload = {
-      payload: {
-        data: payload,
-      },
+      payload,
     };
 
     // Create intent with client authentication
