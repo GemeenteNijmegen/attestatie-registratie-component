@@ -18,3 +18,7 @@ export interface CredentialAttribute {
   attributeUuid: string;
   value: string;
 }
+
+export interface CredentialMapping {
+  mapping: Record<string, unknown>;
+}

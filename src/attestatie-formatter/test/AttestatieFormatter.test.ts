@@ -29,15 +29,11 @@ describe('AttestatieFormatter', () => {
   it('should format standplaatsvergunning product correctly', () => {
     const result = AttestatieFormatter.format('standplaatsvergunning', mockProduct);
 
-    expect(result).toHaveLength(9);
-    expect(result[0]).toEqual({
-      attributeUuid: '6cd4ef9f-9c37-4c38-be02-10ac886e4a4e',
-      value: '999999333',
-    });
-    expect(result[1]).toEqual({
-      attributeUuid: '0a0c7028-e55f-492d-a2ab-851e20c1293f',
-      value: '12126e1e-9bc1-4a30-b73e-5b5aa4ce8bc4',
-    });
+    expect(result.mapping).toBeDefined();
+    expect(result.mapping.bsn).toBe('999999333');
+    expect(result.mapping.kenmerk).toBe('12126e1e-9bc1-4a30-b73e-5b5aa4ce8bc4');
+    expect(result.mapping.product_naam).toBe('Vergunning langs de 4-daagse route');
+    expect(result.mapping.uniforme_product_naam).toBe('standplaatsvergunning');
   });
 
   it('should throw error for unknown template', () => {
