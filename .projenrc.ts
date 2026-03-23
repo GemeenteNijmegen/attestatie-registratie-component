@@ -3,7 +3,11 @@ import { Transform, TypeScriptModuleResolution } from 'projen/lib/javascript';
 
 const project = new GemeenteNijmegenTsPackage({
   defaultReleaseBranch: 'main',
-  devDeps: ['@gemeentenijmegen/projen-project-type', '@types/jsonwebtoken'],
+  devDeps: [
+    '@gemeentenijmegen/projen-project-type',
+    '@types/jsonwebtoken',
+    'aws-sdk-client-mock',
+  ],
   name: '@gemeentenijmegen/attestatie-registratie-component',
   projenrcTs: true,
   repository: 'https://github.com/GemeenteNijmegen/attestatie-registratie-component',
