@@ -62,7 +62,10 @@ export class VerIdAttestationService implements AttestationService {
       codeChallenge: codeChallenge.codeChallenge,
     });
 
-    return userUrl.issuanceUrl;
+    return {
+      issuanceUrl: userUrl.issuanceUrl,
+      issuanceRunId: intent.issuance_run_uuid!,
+    };
   }
 
   /**

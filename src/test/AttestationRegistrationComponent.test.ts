@@ -1,5 +1,5 @@
 import { VerIdAttestationService } from '../attestation-service/VerIdAttestationService';
-import { AttestatieRegestratieComponent } from '../AttestationRegistrationComponent';
+import { AttestatieRegistratieComponent } from '../AttestationRegistrationComponent';
 import { AttestationRequest } from '../AttestationRequest';
 import { TokenVerification } from '../auth/TokenVerification';
 import { ProductenService } from '../producten/ProductenService';
@@ -23,7 +23,10 @@ jest.mock('../attestation-service/VerIdAttestationService', () => ({
   VerIdAttestationService: jest.fn().mockImplementation(() => {
     return {
       intent: jest.fn().mockImplementation(() => {
-        return Promise.resolve('http://example.com');
+        return Promise.resolve({
+          issuanceUrl: 'http://example.com',
+          issuanceRunId: 'bla',
+        });
       }),
     };
   }),
@@ -36,7 +39,7 @@ jest.mock('../auth/TokenVerification', () => ({
 }));
 
 describe('AttestatieRegestratieComponent', () => {
-  let component: AttestatieRegestratieComponent;
+  let component: AttestatieRegistratieComponent;
   let mockedAttestationService: VerIdAttestationService;
   let mockedProductenService: ProductenService;
 
@@ -74,7 +77,7 @@ describe('AttestatieRegestratieComponent', () => {
         return Promise.resolve(mockedProduct);
       }),
     } as ProductenService;
-    component = new AttestatieRegestratieComponent({
+    component = new AttestatieRegistratieComponent({
       attestationService: mockedAttestationService,
       productenService: mockedProductenService,
       apiKey: 'valid-token',
@@ -112,7 +115,7 @@ describe('AttestatieRegestratieComponent', () => {
         verify: mockVerify,
       } as unknown as TokenVerification));
 
-      const componentWithJWT = new AttestatieRegestratieComponent({
+      const componentWithJWT = new AttestatieRegistratieComponent({
         attestationService: mockedAttestationService,
         productenService: mockedProductenService,
         jwtSecret: 'test-secret',
@@ -137,7 +140,7 @@ describe('AttestatieRegestratieComponent', () => {
         verify: mockVerify,
       } as unknown as TokenVerification));
 
-      const componentWithInvalidJWT = new AttestatieRegestratieComponent({
+      const componentWithInvalidJWT = new AttestatieRegistratieComponent({
         attestationService: mockedAttestationService,
         productenService: mockedProductenService,
         jwtSecret: 'test-secret',

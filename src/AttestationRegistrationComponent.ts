@@ -3,6 +3,7 @@ import { AttestatieFormatter } from './attestatie-formatter/AttestatieFormatter'
 import { AttestationService } from './attestation-service/AttestationService';
 import { AttestationRequest } from './AttestationRequest';
 import { TokenVerification } from './auth/TokenVerification';
+import { StateStore } from './DynamoDbStateStore';
 import { ProductenService } from './producten/ProductenService';
 
 export interface AttestatieRegestratieComponentOptions {
@@ -11,9 +12,10 @@ export interface AttestatieRegestratieComponentOptions {
   readonly tokenVerification?: TokenVerification;
   readonly jwtSecret?: string;
   readonly apiKey?: string;
+  readonly stateStore?: StateStore;
 }
 
-export class AttestatieRegestratieComponent {
+export class AttestatieRegistratieComponent {
 
   constructor(private readonly options: AttestatieRegestratieComponentOptions) {
 
@@ -59,8 +61,16 @@ export class AttestatieRegestratieComponent {
       const upl = product.producttype.uniforme_product_naam;
       const kaartje = AttestatieFormatter.format(upl, product);
       const flowUuid = AttestatieFormatter.getFlowUuid(upl);
+
+      const result = await this.options.attestationService.intent(kaartje, flowUuid);
+      // 3. Store issuance ID
+      if (this.options.stateStore) {
+        await this.options.stateStore.put(result.issuanceRunId, { requestType: request.type, id: request.id });
+      } else {
+        console.warn('Should really store state for ', result.issuanceRunId);
+      }
       // 4. Call Ver.ID and return the url
-      return this.options.attestationService.intent(kaartje, flowUuid);
+      return result.issuanceUrl;
     }
 
     throw Error(`Unknown attestation type: ${request.type}`);
