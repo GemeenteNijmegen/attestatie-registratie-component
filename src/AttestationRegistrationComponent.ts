@@ -1,4 +1,5 @@
 
+import { randomUUID } from 'crypto';
 import { AttestatieFormatter } from './attestatie-formatter/AttestatieFormatter';
 import { AttestationService } from './attestation-service/AttestationService';
 import { AttestationRequest } from './AttestationRequest';
@@ -6,7 +7,7 @@ import { TokenVerification } from './auth/TokenVerification';
 import { StateStore } from './DynamoDbStateStore';
 import { ProductenService } from './producten/ProductenService';
 
-export interface AttestatieRegestratieComponentOptions {
+export interface AttestatieRegistratieComponentOptions {
   readonly attestationService?: AttestationService;
   readonly productenService?: ProductenService;
   readonly tokenVerification?: TokenVerification;
@@ -15,9 +16,14 @@ export interface AttestatieRegestratieComponentOptions {
   readonly stateStore?: StateStore;
 }
 
+export interface CallbackRequest {
+  readonly state: string;
+  readonly error?: string;
+}
+
 export class AttestatieRegistratieComponent {
 
-  constructor(private readonly options: AttestatieRegestratieComponentOptions) {
+  constructor(private readonly options: AttestatieRegistratieComponentOptions) {
 
   }
 
@@ -62,10 +68,12 @@ export class AttestatieRegistratieComponent {
       const kaartje = AttestatieFormatter.format(upl, product);
       const flowUuid = AttestatieFormatter.getFlowUuid(upl);
 
-      const result = await this.options.attestationService.intent(kaartje, flowUuid);
+      const state = randomUUID();
+
+      const result = await this.options.attestationService.intent(kaartje, flowUuid, state);
       // 3. Store issuance ID
       if (this.options.stateStore) {
-        await this.options.stateStore.put(result.issuanceRunId, { requestType: request.type, id: request.id });
+        await this.options.stateStore.put(state, { issuanceRunId: result.issuanceRunId, requestType: request.type, id: request.id });
       } else {
         console.warn('Should really store state for ', result.issuanceRunId);
       }
@@ -80,7 +88,9 @@ export class AttestatieRegistratieComponent {
    * Note: requested by the user's browser
    * @param _request
    */
-  async callback(request: any) {
+  async callback(request: CallbackRequest) {
+
+    const result = await this.options.stateStore?.get(request.state);
 
     if (!this.options.productenService || !this.options.attestationService) {
       throw Error('Incorrect config provided');
@@ -98,7 +108,10 @@ export class AttestatieRegistratieComponent {
     // Redirect user to mijn-nijmegen.
 
     // TODO: proper error handling
-    return !JSON.stringify(request).toLocaleLowerCase().includes('error');
+    return {
+      error: request.error,
+      result,
+    };
   }
 
   /**

@@ -24,7 +24,11 @@ describe('VerIdAttestationService', () => {
         redirectUri: '',
       }, mockedIssuanceClient);
 
-      await expect(verIdAttestationService.intent({ mapping: {} } as CredentialMapping, 'mock-flow-uuid')).resolves.toEqual({ issuanceUrl: 'http://example.com', issuanceRunId: undefined });
+      await expect(verIdAttestationService.intent({ mapping: {} } as CredentialMapping, 'mock-flow-uuid')).resolves.toEqual({
+        issuanceUrl: 'http://example.com',
+        issuanceRunId: undefined,
+        state: 'mock-state',
+      });
       expect(mockedIssuanceClient.generateCodeChallenge).toHaveBeenCalled();
       expect(mockedIssuanceClient.createIssuanceIntent).toHaveBeenCalled();
       expect(mockedIssuanceClient.generateIssuanceUrl).toHaveBeenCalled();
