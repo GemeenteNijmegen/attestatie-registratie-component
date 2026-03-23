@@ -58,8 +58,9 @@ export class AttestatieRegestratieComponent {
       // 2. Map to attestation (note: this is a secured endpoint, ownership is verified by portal)
       const upl = product.producttype.uniforme_product_naam;
       const kaartje = AttestatieFormatter.format(upl, product);
+      const flowUuid = AttestatieFormatter.getFlowUuid(upl);
       // 4. Call Ver.ID and return the url
-      return this.options.attestationService.intent(kaartje);
+      return this.options.attestationService.intent(kaartje, flowUuid);
     }
 
     throw Error(`Unknown attestation type: ${request.type}`);
@@ -80,7 +81,7 @@ export class AttestatieRegestratieComponent {
     // TODO _request is not the correct param, we need the actual url params of the request
     // TODO get parameters from url
 
-    // this.options.attestationService.authorize()
+    // this.options.attestationService.authorize({});
 
     // Get jwt token from Ver.ID using auth code
     // Parse JWT and store revocation key

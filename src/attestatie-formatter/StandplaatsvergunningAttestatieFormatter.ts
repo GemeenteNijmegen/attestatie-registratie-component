@@ -1,8 +1,13 @@
-import { IAttestatieFormatter } from './AttestatieFormatter';
 import { CredentialMapping } from '../attestation-service/AttestationService';
 import { Product } from '../producten/ProductSchema';
+import { IAttestatieFormatter } from './AttestatieFormatter';
 
 export class StandplaatsvergunningAttestatieFormatter implements IAttestatieFormatter<Product> {
+
+  getFlowUuid(): string {
+    return 'd7e8f9a0-f001-4000-a000-100000000001';
+  }
+
   format(product: Product): CredentialMapping {
 
     const bsn = product.eigenaren[0]?.bsn;

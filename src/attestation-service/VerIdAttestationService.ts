@@ -1,4 +1,4 @@
-import { assertIssuanceV1JwtPayload, ICacheManager, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
+import { ICacheManager, IssuanceIntentPayload, VeridIssuanceClient } from '@ver-id/node-client';
 import { AttestationService, CredentialAttribute } from './AttestationService';
 
 
@@ -12,10 +12,6 @@ export interface VerIdAttestationServiceConfig {
    */
   redirectUri: string;
   /**
-   * Client id
-   */
-  client_id: string;
-  /**
    * Client secret
    */
   client_secret: string;
@@ -27,12 +23,13 @@ export interface VerIdAttestationServiceConfig {
 
 export class VerIdAttestationService implements AttestationService {
 
-  private issuanceClient: VeridIssuanceClient;
+  constructor(private readonly config: VerIdAttestationServiceConfig) {
+  }
 
-  constructor(private readonly config: VerIdAttestationServiceConfig, issuanceClient?: VeridIssuanceClient) {
-    this.issuanceClient = issuanceClient ?? new VeridIssuanceClient({
+  private getIssueanceClient(flowUuid: string) {
+    return new VeridIssuanceClient({
       issuerUri: this.config.issuerUri,
-      client_id: this.config.client_id,
+      client_id: flowUuid,
       redirectUri: this.config.redirectUri,
       options: {
         cacheManager: this.config.cacheManager,
@@ -40,30 +37,26 @@ export class VerIdAttestationService implements AttestationService {
     });
   }
 
-  async intent(payload: CredentialAttribute[]) {
-
-    const codeChallenge = await this.issuanceClient.generateCodeChallenge();
+  async intent(payload: CredentialAttribute[], flowUuid: string) {
+    const verIdClient = this.getIssueanceClient(flowUuid);
+    const codeChallenge = await verIdClient.generateCodeChallenge();
 
     // Build intent payload
     const intentPayload: IssuanceIntentPayload = {
       payload: {
-        // data: [
-        //   { attributeUuid: '1ac22d17-9c8a-493f-8a27-20f89fcec2c1', value: '<First names>' },
-        //   { attributeUuid: '3d3e898a-4122-45d8-b42f-4d74c8143116', value: '<Surname>' },
-        // ],
         data: payload,
       },
     };
 
     // Create intent with client authentication
-    const intentId = await this.issuanceClient.createIssuanceIntent(
+    const intentId = await verIdClient.createIssuanceIntent(
       intentPayload,
       codeChallenge.codeChallenge,
       { client_secret: this.config.client_secret },
     );
 
     // Generate URL with intent
-    const userUrl = await this.issuanceClient.generateIssuanceUrl({
+    const userUrl = await verIdClient.generateIssuanceUrl({
       intent_id: intentId,
       state: codeChallenge.state,
       codeChallenge: codeChallenge.codeChallenge,
@@ -72,16 +65,28 @@ export class VerIdAttestationService implements AttestationService {
     return userUrl.issuanceUrl;
   }
 
-  async authorize(params: URLSearchParams) {
-    const finalized = await this.issuanceClient.finalize({
-      callbackParams: params,
-      clientAuth: {
-        client_secret: this.config.client_secret,
-      },
-    });
+  /**
+   * This part of the flow is not always reached as a user can
+   * just quit the flow when credentials are loaded into the wallet
+   * callback is not guaranteed to end up at ARC.
+   */
+  async authorize() {
 
-    const jwt = await this.issuanceClient.decode(finalized, assertIssuanceV1JwtPayload);
-    console.log('JWT', JSON.stringify(jwt.payload.output));
+    throw Error('Not implemented');
+
+
+    // const verIdClient = this.getIssueanceClient(flowUuid);
+
+
+    // const finalized = await verIdClient.finalize({
+    //   callbackParams: params,
+    //   clientAuth: {
+    //     client_secret: this.config.client_secret,
+    //   },
+    // });
+
+    // const jwt = await verIdClient.decode(finalized, assertIssuanceV1JwtPayload);
+    // console.log('JWT', JSON.stringify(jwt.payload.output));
 
     // TODO: implement revocationKeys as response and test it
     // return jwt.payload.output[0].revocationKeys;
