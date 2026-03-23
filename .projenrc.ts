@@ -9,6 +9,8 @@ const project = new GemeenteNijmegenTsPackage({
   repository: 'https://github.com/GemeenteNijmegen/attestatie-registratie-component',
   npmTrustedPublishing: true,
   deps: [
+    '@aws-sdk/client-dynamodb',
+    '@aws-sdk/util-dynamodb',
     '@ver-id/node-client',
     'dotenv',
     'jsonwebtoken',
