@@ -47,24 +47,22 @@ export class VerIdAttestationService implements AttestationService {
     // Build intent payload
     const intentPayload: IssuanceIntentPayload = {
       payload: {
-        // data: [
-        //   { attributeUuid: '1ac22d17-9c8a-493f-8a27-20f89fcec2c1', value: '<First names>' },
-        //   { attributeUuid: '3d3e898a-4122-45d8-b42f-4d74c8143116', value: '<Surname>' },
-        // ],
         data: payload,
       },
     };
 
     // Create intent with client authentication
-    const intentId = await this.issuanceClient.createIssuanceIntent(
+    const intent = await this.issuanceClient.createIssuanceIntent(
       intentPayload,
       codeChallenge.codeChallenge,
       { client_secret: this.config.client_secret },
     );
 
+    console.log('TODO: Save this somewhere safe', intent.issuance_run_uuid);
+
     // Generate URL with intent
     const userUrl = await this.issuanceClient.generateIssuanceUrl({
-      intent_id: intentId,
+      intent_id: intent.intent_id,
       state: codeChallenge.state,
       codeChallenge: codeChallenge.codeChallenge,
     });
