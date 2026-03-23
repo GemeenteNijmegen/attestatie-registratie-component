@@ -1,9 +1,9 @@
 import { IAttestatieFormatter } from './AttestatieFormatter';
-import { CredentialAttribute } from '../attestation-service/AttestationService';
+import { CredentialMapping } from '../attestation-service/AttestationService';
 import { Product } from '../producten/ProductSchema';
 
 export class OverlijdensakteAttestatieFormatter implements IAttestatieFormatter<Product> {
-  format(product: Product): CredentialAttribute[] {
+  format(product: Product): CredentialMapping {
 
     const bsn = product.eigenaren[0]?.bsn;
 
@@ -11,12 +11,9 @@ export class OverlijdensakteAttestatieFormatter implements IAttestatieFormatter<
       throw new Error('Invalid product: missing required fields');
     }
 
-    return [
-      {
-        attributeUuid: 'xxx-xxx-xxx-xxx',
-        value: bsn,
-      },
+    return {
+      mapping: {},
       // TODO define credential type with VerID.
-    ];
+    };
   }
 }

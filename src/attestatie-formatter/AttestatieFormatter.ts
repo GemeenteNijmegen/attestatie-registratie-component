@@ -1,6 +1,6 @@
 import { OverlijdensakteAttestatieFormatter } from './OverlijdensakteAttestatieFormatter';
 import { StandplaatsvergunningAttestatieFormatter } from './StandplaatsvergunningAttestatieFormatter';
-import { CredentialAttribute } from '../attestation-service/AttestationService';
+import { CredentialMapping } from '../attestation-service/AttestationService';
 
 /**
  * Allows us to define multiple product types
@@ -8,7 +8,7 @@ import { CredentialAttribute } from '../attestation-service/AttestationService';
  */
 export class AttestatieFormatter {
 
-  static format(template: string, input: any): CredentialAttribute[] {
+  static format(template: string, input: any): CredentialMapping {
     const formatter = this.types[template];
     if (!formatter) {
       throw new Error(`Unknown template: ${template}`);
@@ -27,5 +27,5 @@ export class AttestatieFormatter {
  * Interface for mapping inputs to attestations
  */
 export interface IAttestatieFormatter<T> {
-  format(input: T): CredentialAttribute[];
+  format(input: T): CredentialMapping;
 }
