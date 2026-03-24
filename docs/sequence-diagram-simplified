@@ -1,0 +1,49 @@
+# Hoe werkt het ophalen van een digitale attestatie?
+
+## Stap-voor-stap uitleg
+
+1. **Kiezen:** De gebruiker kiest een product of attestatie op de website **mijn.nijmegen.nl**.
+2. **Aanvraag starten:** De website stuurt deze aanvraag naar onze achterkant (**ARC**).
+3. **Gegevens ophalen:** ARC haalt de nodige gegevens op bij de productencatalogus (**OpenProduct**). Deze gegevens worden klaargezet zodat ze in de attestatie gezet kunnen worden.
+4. **Attestatie voorbereiden & redirect ophalen:** ARC vraagt aan het systeem dat attestaties uitgeeft (**Ver.ID**) om de attestatie alvast voor te bereiden en hier direct een redirect URL voor terug te geven.
+5. **Doorsturen:** De gebruiker wordt via deze redirect automatisch doorgestuurd om het proces af te ronden.
+6. **Attestatie ontvangen:** Ver.ID plaatst de digitale attestatie veilig op de telefoon in de digitale portemonnee (**ID Wallet**) van de gebruiker.
+7. **Terugkeren:** Als de gebruiker daarmee klaar is, stuurt Ver.ID de gebruiker automatisch via een redirect terug naar ARC.
+8. **Afronden:** ARC controleert of alles is gelukt. Daarna wordt de gebruiker teruggestuurd naar de website **mijn.nijmegen.nl** waar een groen scherm ('succesbericht') staat.
+
+**Wat als het net even anders loopt?**
+Stel dat de gebruiker de browser op zijn telefoon sluit direct nadat de attestatie veilig is opgeslagen (dus na stap 6, maar vóór stap 7). Dan weet ARC nog niet dat het gelukt is. In de toekomst wordt daar nog een automatische melding via de achtergrond voor ingebouwd (een zogenaamde 'webhook'). ⚠️ *Dit is nu nog niet ingebouwd.*
+
+## Overzichtsschema (Sequence diagram)
+
+Hieronder zie je dezelfde stappen uitgetekend, met hoe de verschillende systemen met elkaar praten:
+
+```mermaid
+sequenceDiagram
+    actor Browser
+    participant Portaal as mijn.nijmegen.nl
+    participant ARC
+    participant Source as OpenProduct
+    participant VerID as Ver.ID
+    participant Wallet as ID Wallet
+
+    Browser->>Portaal: 1. Kiest product
+    Portaal->>ARC: 2. Start aanvraag
+    ARC->>Source: 3. Haal productgegevens op
+    Source-->>ARC: Ontvang productgegevens
+    Note over ARC: Maak gegevens klaar voor attestatie
+    ARC->>VerID: 4. Bereid attestatie voor en vraag redirect aan
+    VerID-->>ARC: Ontvang redirect URL
+    ARC-->>Portaal: Geef redirect door aan mijn.nijmegen.nl
+    Portaal-->>Browser: 5. Stuur browser door via redirect
+
+    Browser->>VerID: Attestatieproces doorlopen in ver.id
+    VerID->>Wallet: 6. Plaats attestatie in wallet
+    Wallet-->>VerID: Attestatie is veilig opgeslagen
+    VerID-->>Browser: 7. Redirect browser terug naar ARC
+
+    Browser->>ARC: Keer terug bij ARC
+    ARC->>ARC: Sla succes op
+    ARC-->>Browser: 8. Stuur browser door naar mijn.nijmegen.nl
+    Browser->>Portaal: Toon bericht dat het is gelukt
+```
