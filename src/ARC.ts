@@ -5,12 +5,12 @@ import { Session } from './core/Session';
 import { Source } from './core/Source';
 import { Store } from './core/Store';
 import { ConfigurationError, UnknownAttestationError, UnknownSourceError } from './errors';
-import { resolveByPath } from './utils/resolveByPath';
 import {
   IssueParams, IssueParamsSchema, IssueResult,
   RevokeParams, RevokeParamsSchema, RevokeResult,
   StatusParams, StatusParamsSchema, StatusResult,
 } from './schemas';
+import { resolveByPath } from './utils/resolveByPath';
 
 export interface ARCOptions<TProvider extends Provider<any, any> = Provider> {
   provider: TProvider;

@@ -16,7 +16,7 @@ export abstract class Attestation<TSource = unknown> {
   constructor(protected readonly options: AttestationOptions) {
     this.name = options.name;
     this.sourceName = options.sourceName;
-    this.sourceIdentifier =  options.sourceIdentifier;
+    this.sourceIdentifier = options.sourceIdentifier;
     this.sourceIdentifierPath = options.sourceIdentifierPath;
   }
 

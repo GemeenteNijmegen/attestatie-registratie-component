@@ -1,15 +1,15 @@
-import { Attestation } from "../../core/Attestation";
-import { MappingValidationError } from "../../errors";
-import { MappingResult } from "../../schemas";
-import { Product } from "../../sources/OpenProduct";
+import { Attestation } from '../../core/Attestation';
+import { MappingValidationError } from '../../errors';
+import { MappingResult } from '../../schemas';
+import { Product } from '../../sources/OpenProduct';
 
 export class OpenProductOverlijdensakte extends Attestation<Product> {
   constructor() {
     super({
-      name: "overlijdensakte",
-      sourceName: "openproduct",
-      sourceIdentifier: "overlijdensakte",
-      sourceIdentifierPath: "producttype.uniforme_product_naam",
+      name: 'overlijdensakte',
+      sourceName: 'openproduct',
+      sourceIdentifier: 'overlijdensakte',
+      sourceIdentifierPath: 'producttype.uniforme_product_naam',
     });
   }
 
@@ -17,7 +17,7 @@ export class OpenProductOverlijdensakte extends Attestation<Product> {
     const bsn = product.eigenaren[0]?.bsn;
 
     if (!bsn || !product.uuid) {
-      throw new MappingValidationError("overlijdensakte");
+      throw new MappingValidationError('overlijdensakte');
     }
 
     return {};
