@@ -24,7 +24,6 @@ ARC is opgebouwd uit pluggable abstracties:
 - **Provider** — Handelt de daadwerkelijke uitgifte en intrekking af
 - **Store** — Tijdelijke opslag voor sessiestate (bijv. DynamoDB)
 
-<<<<<<< HEAD
 Zie [docs/architectuur.md](docs/architectuur.md) voor een volledig overzicht.
 
 ## Snel starten
@@ -85,17 +84,3 @@ Ontwikkeld door [Gemeente Nijmegen](https://www.nijmegen.nl/) in samenwerking me
 ## Licentie
 
 [EUPL-1.2](LICENSE)
-=======
-Can be deployed as:
-- Docker image with npm package
-- Standalone npm package
-- npm package on AWS Lambda (current implementation)
-
-
-
-
-## Ideas
-- Centrale mapping voor gedeelde attributen
-- Producten (of andere dingen) mappen naar flow uuid
-- Extensible configuratie mechanmise
->>>>>>> main
