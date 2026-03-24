@@ -88,11 +88,8 @@ export class VerID extends Provider<VerIDConfig, VerIDAttestationConfig> {
     const hasError = Array.from(searchParams.keys()).some(k => k.toLowerCase().includes('error'));
     const success = !hasError;
 
-    // TODO: implement finalize flow when success
-    // const attestationConfig = this.getAttestationConfig(context.attestation);
-    // const client = this.getClient(attestationConfig.flowUuid);
-    // const finalized = await client.finalize({ ... });
-
+    // TODO: we have to make sure that we issue the events only once
+    // TODO: The webhook could be called too which issues the event twice.
     await this.emitIssuanceEvent({
       sessionId,
       status: success ? 'issued' : 'aborted',
