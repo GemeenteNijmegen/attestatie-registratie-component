@@ -1,3 +1,5 @@
+export { Base } from './Base';
+export type { EventListeners } from './Base';
 export { Source } from './Source';
 export type { SourceConfig, SourceOptions } from './Source';
 export { Attestation } from './Attestation';

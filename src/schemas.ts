@@ -3,7 +3,6 @@ import * as z from 'zod';
 export const IssueParamsSchema = z.object({
   source: z.string(),
   id: z.string(),
-  attestation: z.string(),
 });
 export type IssueParams = z.infer<typeof IssueParamsSchema>;
 

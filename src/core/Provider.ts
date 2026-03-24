@@ -1,5 +1,6 @@
 import { AttestationNotConfiguredError } from '../errors';
-import { EventHandler, EventMap, IssuanceEvent, MappingResult, ProviderIssueResult, SessionStatus } from '../schemas';
+import { IssuanceEvent, MappingResult, ProviderIssueResult, SessionStatus } from '../schemas';
+import { Base } from './Base';
 import { Session, SessionContext } from './Session';
 
 export interface ProviderConfig {}
@@ -17,17 +18,11 @@ export interface ProviderOptions<
 export abstract class Provider<
   TConfig extends ProviderConfig = ProviderConfig,
   TAttestation extends AttestationConfig = AttestationConfig,
-> {
-  private listeners: { [K in keyof EventMap]?: EventHandler<EventMap[K]>[] } = {};
+> extends Base {
   protected session?: Session;
 
-  constructor(protected readonly options: ProviderOptions<TConfig, TAttestation>) {}
-
-  on<K extends keyof EventMap>(event: K, handler: EventHandler<EventMap[K]>): void {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
-    }
-    this.listeners[event]!.push(handler);
+  constructor(protected readonly options: ProviderOptions<TConfig, TAttestation>) {
+    super();
   }
 
   setSession(session: Session): void {
@@ -40,19 +35,6 @@ export abstract class Provider<
       throw new AttestationNotConfiguredError(attestationName);
     }
     return config;
-  }
-
-  async emit<K extends keyof EventMap>(event: K, data: EventMap[K]): Promise<void> {
-    const handlers = this.listeners[event];
-    if (handlers) {
-      for (const handler of handlers) {
-        try {
-          await handler(data);
-        } catch {
-          // Event handler failure should not break the provider flow
-        }
-      }
-    }
   }
 
   protected async emitIssuanceEvent(event: IssuanceEvent): Promise<void> {

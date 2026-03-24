@@ -1,5 +1,6 @@
 import { VeridIssuanceClient } from '@ver-id/node-client';
 import { InMemory } from '../../src/adapters/InMemory';
+import { EventListeners } from '../../src/core/Base';
 import { Session } from '../../src/core/Session';
 import { VerID } from '../../src/providers/VerID';
 import { IssuanceEvent } from '../../src/schemas';
@@ -43,6 +44,8 @@ describe('VerID', () => {
       mockClient,
     );
 
+    const listeners: EventListeners = {};
+    provider.init(listeners);
     provider.setSession(new Session({ store }));
     provider.on('issuance', async (event) => { issuanceEvents.push(event); });
   });

@@ -47,7 +47,7 @@ describe('hierarchy', () => {
     { Class: NotImplementedError, args: ['Status'], code: 1001, parent: ARCError },
     { Class: UnknownError, args: ['oops'], code: 1002, parent: ARCError },
     { Class: UnknownSourceError, args: ['src'], code: 2001, parent: ConfigurationError },
-    { Class: UnknownAttestationError, args: ['src', 'att'], code: 2002, parent: ConfigurationError },
+    { Class: UnknownAttestationError, args: ['src'], code: 2002, parent: ConfigurationError },
     { Class: AttestationNotConfiguredError, args: ['att'], code: 2003, parent: ConfigurationError },
     { Class: ProviderNotInitializedError, args: [], code: 2004, parent: ConfigurationError },
     { Class: SourceFetchError, args: [404, 'Not Found'], code: 3001, parent: SourceError },

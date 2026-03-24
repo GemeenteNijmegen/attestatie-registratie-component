@@ -1,11 +1,12 @@
 import { Attestation } from './core/Attestation';
+import { Base, EventListeners } from './core/Base';
 import { Provider } from './core/Provider';
 import { Session } from './core/Session';
 import { Source } from './core/Source';
 import { Store } from './core/Store';
 import { ConfigurationError, UnknownAttestationError, UnknownSourceError } from './errors';
+import { resolveByPath } from './utils/resolveByPath';
 import {
-  EventHandler, EventMap,
   IssueParams, IssueParamsSchema, IssueResult,
   RevokeParams, RevokeParamsSchema, RevokeResult,
   StatusParams, StatusParamsSchema, StatusResult,
@@ -18,32 +19,38 @@ export interface ARCOptions<TProvider extends Provider<any, any> = Provider> {
   attestations: Attestation[];
 }
 
-export class ARC<TProvider extends Provider<any, any> = Provider> {
+export class ARC<TProvider extends Provider<any, any> = Provider> extends Base {
   readonly provider: TProvider;
 
   private sourceMap: Map<string, Source<any, any>>;
-  private attestationMap: Map<string, Attestation>;
+  private attestationsBySource: Map<string, Attestation[]>;
   private session: Session;
 
   constructor(private readonly options: ARCOptions<TProvider>) {
+    super();
+
+    const listeners: EventListeners = {};
+    this.init(listeners);
+
     this.provider = options.provider;
     this.session = new Session({ store: options.store });
     this.sourceMap = new Map(options.sources.map(s => [s.name, s]));
-    this.attestationMap = new Map(
-      options.attestations.map(a => [`${a.sourceName}:${a.name}`, a]),
-    );
-
+    this.attestationsBySource = new Map();
     for (const attestation of options.attestations) {
       if (!this.sourceMap.has(attestation.sourceName)) {
         throw new ConfigurationError(`Attestation "${attestation.name}" references unknown source "${attestation.sourceName}"`);
       }
+      const list = this.attestationsBySource.get(attestation.sourceName) ?? [];
+      list.push(attestation);
+      this.attestationsBySource.set(attestation.sourceName, list);
     }
 
+    this.provider.init(listeners);
     this.provider.setSession(this.session);
-  }
-
-  on<K extends keyof EventMap>(event: K, handler: EventHandler<EventMap[K]>): void {
-    this.provider.on(event, handler);
+    for (const source of options.sources) {
+      source.init(listeners);
+    }
+    options.store.init(listeners);
   }
 
   async issue(params: IssueParams): Promise<IssueResult> {
@@ -52,12 +59,12 @@ export class ARC<TProvider extends Provider<any, any> = Provider> {
     const source = this.sourceMap.get(validated.source);
     if (!source) throw new UnknownSourceError(validated.source);
 
-    const attestation = this.attestationMap.get(`${validated.source}:${validated.attestation}`);
-    if (!attestation) throw new UnknownAttestationError(validated.source, validated.attestation);
-
-    const context = { source: validated.source, id: validated.id, attestation: validated.attestation };
-
     const sourceData = await source.fetch(validated.id);
+
+    const attestation = this.resolveAttestation(validated.source, sourceData);
+
+    const context = { source: validated.source, id: validated.id, attestation: attestation.name };
+
     const mappingResult = attestation.map(sourceData);
     const providerResult = await this.options.provider.issue(context, mappingResult);
 
@@ -68,6 +75,17 @@ export class ARC<TProvider extends Provider<any, any> = Provider> {
     }
 
     return providerResult;
+  }
+
+  private resolveAttestation(sourceName: string, sourceData: unknown): Attestation {
+    const attestations = this.attestationsBySource.get(sourceName) ?? [];
+    for (const attestation of attestations) {
+      const value = resolveByPath(sourceData, attestation.sourceIdentifierPath);
+      if (value === attestation.sourceIdentifier) {
+        return attestation;
+      }
+    }
+    throw new UnknownAttestationError(sourceName);
   }
 
   async status(params: StatusParams): Promise<StatusResult> {

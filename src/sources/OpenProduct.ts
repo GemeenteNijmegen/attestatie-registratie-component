@@ -104,6 +104,32 @@ export class OpenProduct extends Source<Product, OpenProductConfig> {
     super({ name: 'openproduct', config });
   }
 
+  protected override onInit(): void {
+    this.on('issuance', async (event) => {
+      if (event.context.source !== this.name) return;
+      await this.updateProduct(event.context.id, event.sessionId);
+    });
+  }
+
+  async updateProduct(id: string, sessionId: string): Promise<void> {
+    // TODO, we have to update this to properly handle the issuance in the openproduct
+    console.dir(`Updating product ${id} with session ID ${sessionId}`);
+    // const url = `${this.options.config.baseUrl}/producten/${id}`;
+
+    // const response = await fetch(url, {
+    //   method: 'PATCH',
+    //   headers: {
+    //     Authorization: `Token ${this.options.config.apiToken}`,
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ dataobject: {sessionId}}),
+    // });
+
+    // if (!response.ok) {
+    //   throw new SourceFetchError(response.status, response.statusText);
+    // }
+  }
+
   async fetch(id: string): Promise<Product> {
     const url = `${this.options.config.baseUrl}/producten/${id}`;
 

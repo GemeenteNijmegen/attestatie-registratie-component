@@ -75,7 +75,6 @@ export async function issueHandler(event: { body: string }) {
   const result = await arc.issue({
     source: 'openproduct',
     id: body.productId,
-    attestation: 'standplaatsvergunning',
   });
 
   return {

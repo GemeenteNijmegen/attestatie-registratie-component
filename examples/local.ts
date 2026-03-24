@@ -2,7 +2,7 @@
  * Runnable local example — no AWS, no real APIs.
  *
  * Uses InMemory store and a fake OpenProduct server (node http).
- * Run: npx ts-node examples/local.ts
+ * Run: npx tsx examples/local.ts
  */
 
 import * as http from 'http';
@@ -95,48 +95,50 @@ async function main() {
     const result = await arc.issue({
       source: 'openproduct',
       id: PRODUCT.uuid,
-      attestation: 'standplaatsvergunning',
     });
     console.log('  Result:', result);
     console.log();
 
-    // --- Simulate callback (success) ---
-    // In a real flow, the browser is redirected to /callback?state=xxx&code=yyy.
+    if (result.type === 'oauth') {
+      // --- Simulate callback (success) ---
+      // In a real flow, the browser is redirected to /callback?state=xxx&code=yyy.
 
-    console.log('=== arc.provider.callback() — success ===');
-    const successParams = new URLSearchParams({
-      state: result.callbackState!,
-      code: 'fake-auth-code',
-    });
-    try {
-      const cbResult = await arc.provider.callback(successParams);
-      console.log('  Result:', cbResult);
-    } catch (err: any) {
-      console.log(`  Error: ${err.message} [code: ${err.code}]`);
-    }
+      console.log('=== arc.provider.callback() — success ===');
+      const successParams = new URLSearchParams({
+        state: result.callbackState,
+        code: 'fake-auth-code',
+      });
+      try {
+        const cbResult = await arc.provider.callback(successParams);
+        console.log('  Result:', cbResult);
+      } catch (err: any) {
+        console.log(`  Error: ${err.message} [code: ${err.code}]`);
+      }
 
-    // --- Simulate callback (error / user denied) ---
+      // --- Simulate callback (error / user denied) ---
 
-    console.log('\n=== arc.issue() — second issuance for error callback ===');
-    const result2 = await arc.issue({
-      source: 'openproduct',
-      id: PRODUCT.uuid,
-      attestation: 'standplaatsvergunning',
-    });
-    console.log('  Result:', result2);
-    console.log();
+      console.log('\n=== arc.issue() — second issuance for error callback ===');
+      const result2 = await arc.issue({
+        source: 'openproduct',
+        id: PRODUCT.uuid,
+        });
+      console.log('  Result:', result2);
+      console.log();
 
-    console.log('=== arc.provider.callback() — error ===');
-    const errorParams = new URLSearchParams({
-      state: result2.callbackState!,
-      error: 'access_denied',
-      error_description: 'The user denied the authorization request',
-    });
-    try {
-      const cbResult = await arc.provider.callback(errorParams);
-      console.log('  Result:', cbResult);
-    } catch (err: any) {
-      console.log(`  Error: ${err.message} [code: ${err.code}]`);
+      if (result2.type === 'oauth') {
+        console.log('=== arc.provider.callback() — error ===');
+        const errorParams = new URLSearchParams({
+          state: result2.callbackState,
+          error: 'access_denied',
+          error_description: 'The user denied the authorization request',
+        });
+        try {
+          const cbResult = await arc.provider.callback(errorParams);
+          console.log('  Result:', cbResult);
+        } catch (err: any) {
+          console.log(`  Error: ${err.message} [code: ${err.code}]`);
+        }
+      }
     }
   } catch (err: any) {
     // Ver.ID client will fail since we're not hitting a real issuer

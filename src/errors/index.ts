@@ -65,10 +65,10 @@ export class UnknownSourceError extends ConfigurationError {
   }
 }
 
-/** No attestation mapping found for the given source + attestation combination. */
+/** No matching attestation found for the given source data. */
 export class UnknownAttestationError extends ConfigurationError {
-  constructor(source: string, attestation: string) {
-    super(`No attestation for ${source} → ${attestation}`, 2002);
+  constructor(source: string) {
+    super(`No matching attestation found for source "${source}"`, 2002);
   }
 }
 
