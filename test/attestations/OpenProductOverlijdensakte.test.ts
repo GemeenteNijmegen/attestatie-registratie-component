@@ -11,7 +11,24 @@ describe('OpenProductOverlijdensakte', () => {
 
   it('should map a valid product', () => {
     const result = attestation.map(productMinimal);
-    expect(result).toEqual({});
+    expect(result).toEqual({
+      bsn: '123456789',
+      kenmerk: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      dateofdeath: '',
+      prefix: '',
+      firstnames: '',
+      initials: '',
+      familyname: '',
+      dateofbirth: '',
+      zipcode: '',
+      gender: '',
+      street: '',
+      municipality: '',
+      houseNumber: '',
+      surname: '',
+      relation: '',
+      city: '',
+    });
   });
 
   it('should throw when bsn is missing', () => {
