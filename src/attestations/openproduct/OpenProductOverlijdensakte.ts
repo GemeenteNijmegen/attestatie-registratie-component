@@ -20,6 +20,25 @@ export class OpenProductOverlijdensakte extends Attestation<Product> {
       throw new MappingValidationError('overlijdensakte');
     }
 
-    return {};
+    const data = product.dataobject as Record<string, string> | undefined;
+
+    return {
+      bsn: bsn,
+      kenmerk: product.uuid,
+      dateofdeath: data?.overlijdensdatum ?? '',
+      prefix: data?.voorvoegsel ?? '',
+      firstnames: data?.voornamen ?? '',
+      initials: data?.voorletters ?? '',
+      familyname: data?.achternaam ?? '',
+      dateofbirth: data?.geboortedatum ?? '',
+      zipcode: data?.postcode ?? '',
+      gender: data?.geslacht ?? '',
+      street: data?.straat ?? '',
+      municipality: data?.gemeente ?? '',
+      houseNumber: data?.huisnummer ?? '',
+      surname: data?.geboorteNaam ?? '',
+      relation: data?.relatieTotOverledene ?? '',
+      city: data?.woonplaats ?? '',
+    };
   }
 }
