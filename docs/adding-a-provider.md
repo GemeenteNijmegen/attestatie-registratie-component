@@ -7,6 +7,7 @@ A provider handles the actual issuance and revocation of attestations. It's a bl
 ```ts
 // src/providers/MyProvider.ts
 import { Provider, ProviderConfig, AttestationConfig } from '../core/Provider';
+import { SessionContext } from '../core/Session';
 import { MappingResult, ProviderIssueResult, SessionStatus } from '../schemas';
 
 export interface MyProviderConfig extends ProviderConfig {
@@ -30,8 +31,9 @@ export class MyProvider extends Provider<MyProviderConfig, MyProviderAttestation
     super({ config, attestations });
   }
 
-  async issue(attestationName: string, mappingResult: MappingResult): Promise<ProviderIssueResult> {
-    const attestationConfig = this.getAttestationConfig(attestationName);
+  async issue(context: SessionContext, mappingResult: MappingResult): Promise<ProviderIssueResult> {
+    // context contains { source, id, attestation }
+    const attestationConfig = this.getAttestationConfig(context.attestation);
 
     // Call your provider's API
     const result = await callMyApi(this.options.config.apiUrl, {
@@ -39,10 +41,12 @@ export class MyProvider extends Provider<MyProviderConfig, MyProviderAttestation
       attributes: mappingResult,
     });
 
+    // Return 'oauth' for redirect-based flows, 'direct' for immediate issuance
     return {
+      type: 'oauth',
       url: result.redirectUrl,
       sessionId: result.sessionId,
-      callbackState: result.state, // optional, for OAuth-style callbacks
+      callbackState: result.state,
     };
   }
 
@@ -59,21 +63,23 @@ export class MyProvider extends Provider<MyProviderConfig, MyProviderAttestation
 
 ## 3. Add provider-specific endpoints (optional)
 
-If your provider uses callbacks or webhooks, add them as public methods:
+If your provider uses callbacks (like OAuth redirects), add them as public methods. See `VerID.callback()` for an example:
 
 ```ts
 export class MyProvider extends Provider<MyProviderConfig, MyProviderAttestationConfig> {
   // ... issue, status, revoke ...
 
-  async webhook(body: Record<string, unknown>): Promise<void> {
-    // Process incoming webhook
-    // Use this.session to look up callback state
-    // Use this.emitIssuanceEvent() to notify the consumer
+  async callback(params: URLSearchParams): Promise<{ success: boolean; sessionId: string; context: SessionContext }> {
+    // Validate callback parameters
+    // Look up session state via this.session
+    // Emit an issuance event to notify the consumer
     await this.emitIssuanceEvent({
       sessionId: '...',
       status: 'issued',
       context: { source: '...', id: '...', attestation: '...' },
     });
+
+    return { success: true, sessionId: '...', context: { source: '...', id: '...', attestation: '...' } };
   }
 }
 ```
@@ -98,4 +104,4 @@ const arc = new ARC({
 });
 ```
 
-The consumer accesses provider-specific endpoints via `arc.provider.webhook(body)`. ARC's generic type parameter preserves the concrete type so these methods are fully typed.
+The consumer accesses provider-specific endpoints via `arc.provider.callback(params)`. ARC's generic type parameter preserves the concrete type so these methods are fully typed.

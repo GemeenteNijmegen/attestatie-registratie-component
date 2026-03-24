@@ -51,7 +51,7 @@ arc.on('issuance', async (event) => {
 
 // Attestatie uitgeven
 const result = await arc.issue({
-  source: 'openproduct', id: 'product-uuid', attestation: 'standplaatsvergunning',
+  source: 'openproduct', id: 'product-uuid',
 });
 // result.type === 'oauth' → redirect naar result.url
 // result.type === 'direct' → direct afgerond

@@ -39,18 +39,17 @@ Tijdelijke opslag voor sessiestate. Records verlopen automatisch (standaard 1 uu
 ```ts
 import { DynamoDb, InMemory } from '@gemeentenijmegen/attestatie-registratie-component';
 
-// Productie: DynamoDB
+// Productie: DynamoDB (regio en credentials via AWS SDK defaults)
 const store = new DynamoDb({
   tableName: 'arc-sessions',
   defaultTtlSeconds: 3600,
-  region: 'eu-west-1',
 });
 
 // Lokaal ontwikkelen: in-memory
 const store = new InMemory();
 ```
 
-De DynamoDB-tabel moet een `id` partition key hebben en [TTL ingeschakeld](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html) op het `ttl` attribuut.
+De DynamoDB-tabel moet een `id` partition key hebben en [TTL ingeschakeld](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html) op het `ttl` attribuut. Optioneel kunt u `partitionKey` en `ttlAttribute` configureren als uw tabel andere attribuutnamen gebruikt.
 
 ### 3. Bronnen
 
@@ -119,8 +118,8 @@ const body = JSON.parse(request.body);
 const result = await arc.issue({
   source: 'openproduct',
   id: body.productId,
-  attestation: 'standplaatsvergunning',
 });
+// De attestatie wordt automatisch bepaald op basis van de brondata.
 // result.type — 'oauth' of 'direct'
 // result.sessionId — sla op in uw eigen database
 // Bij OAuth: result.url — redirect de gebruiker hierheen
@@ -136,6 +135,7 @@ const searchParams = new URLSearchParams(request.queryStringParameters);
 const result = await arc.provider.callback(searchParams);
 // result.success — true als de uitgifte geslaagd is
 // result.sessionId — de bijbehorende sessie
+// result.context — { source, id, attestation }
 // Redirect de gebruiker terug naar uw portaal
 ```
 

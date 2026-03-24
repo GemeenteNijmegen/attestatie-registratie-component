@@ -9,19 +9,25 @@ Attestations live in `src/attestations/{source-name}/`. This groups all attestat
 ```ts
 // src/attestations/openproduct/OpenProductMyAttestation.ts
 import { Attestation } from '../../core/Attestation';
+import { MappingValidationError } from '../../errors';
 import { MappingResult } from '../../schemas';
 import { Product } from '../../sources/OpenProduct';
 
 export class OpenProductMyAttestation extends Attestation<Product> {
   constructor() {
-    super({ name: 'my-attestation', sourceName: 'openproduct' });
+    super({
+      name: 'my-attestation',
+      sourceName: 'openproduct',
+      sourceIdentifier: 'my-product-type',
+      sourceIdentifierPath: 'producttype.uniforme_product_naam',
+    });
   }
 
   map(product: Product): MappingResult {
     const bsn = product.eigenaren[0]?.bsn;
 
     if (!bsn || !product.uuid) {
-      throw new Error('Invalid product: missing required fields');
+      throw new MappingValidationError('my-attestation');
     }
 
     return {
@@ -36,8 +42,10 @@ export class OpenProductMyAttestation extends Attestation<Product> {
 
 Key points:
 
-- `name` — the key used in `arc.issue({ attestation: 'my-attestation' })` and in the provider's attestation config
+- `name` — the attestation identifier, used in the provider's attestation config
 - `sourceName` — must match a registered source's `name` (e.g. `'openproduct'`)
+- `sourceIdentifier` — the value to match in the source data (e.g. the `uniforme_product_naam`)
+- `sourceIdentifierPath` — the dot-notation path in the source data to match against (e.g. `'producttype.uniforme_product_naam'`). ARC uses these two fields to automatically select the correct attestation when `arc.issue()` is called.
 - `map()` — receives the typed source output, returns a flat `Record<string, unknown>`
 
 ## 2. Export from barrel
