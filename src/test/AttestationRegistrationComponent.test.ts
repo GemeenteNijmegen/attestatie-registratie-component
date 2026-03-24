@@ -1,5 +1,5 @@
 import { VerIdAttestationService } from '../attestation-service/VerIdAttestationService';
-import { AttestatieRegistratieComponent } from '../AttestationRegistrationComponent';
+import { AttestatieRegistratieComponent, CallbackRequest } from '../AttestationRegistrationComponent';
 import { AttestationRequest } from '../AttestationRequest';
 import { TokenVerification } from '../auth/TokenVerification';
 import { ProductenService } from '../producten/ProductenService';
@@ -156,7 +156,7 @@ describe('AttestatieRegestratieComponent', () => {
 
   describe('callback', () => {
     it('should handle request', async () => {
-      const request = {} as AttestationRequest;
+      const request = {} as CallbackRequest;
       await expect(component.callback(request)).resolves.toBeTruthy();
     });
   });

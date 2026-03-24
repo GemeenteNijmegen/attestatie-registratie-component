@@ -64,3 +64,11 @@ Can be deployed as:
 - Docker image with npm package
 - Standalone npm package
 - npm package on AWS Lambda (current implementation)
+
+
+
+
+## Ideas
+- Centrale mapping voor gedeelde attributen
+- Producten (of andere dingen) mappen naar flow uuid
+- Extensible configuratie mechanmise

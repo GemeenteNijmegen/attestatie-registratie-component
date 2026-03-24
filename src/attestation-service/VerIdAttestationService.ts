@@ -37,9 +37,9 @@ export class VerIdAttestationService implements AttestationService {
     });
   }
 
-  async intent(payload: CredentialMapping, flowUuid: string) {
+  async intent(payload: CredentialMapping, flowUuid: string, state: string) {
     const verIdClient = this.getIssueanceClient(flowUuid);
-    const codeChallenge = await verIdClient.generateCodeChallenge();
+    const codeChallenge = await verIdClient.generateCodeChallenge(state);
 
     // Build intent payload
     const intentPayload: IssuanceIntentPayload = {
@@ -65,6 +65,7 @@ export class VerIdAttestationService implements AttestationService {
     return {
       issuanceUrl: userUrl.issuanceUrl,
       issuanceRunId: intent.issuance_run_uuid!,
+      state: codeChallenge.state,
     };
   }
 
