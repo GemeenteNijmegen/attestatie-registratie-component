@@ -3,7 +3,7 @@ import { Transform, TypeScriptModuleResolution } from 'projen/lib/javascript';
 
 const project = new GemeenteNijmegenTsPackage({
   defaultReleaseBranch: 'main',
-  devDeps: ['@gemeentenijmegen/projen-project-type', '@types/jsonwebtoken', 'tsx'],
+  devDeps: ['@gemeentenijmegen/projen-project-type', '@types/jsonwebtoken', 'tsx', '@types/pg', 'pg-mem'],
   name: '@gemeentenijmegen/attestatie-registratie-component',
   projenrcTs: true,
   repository: 'https://github.com/GemeenteNijmegen/attestatie-registratie-component',
@@ -11,10 +11,11 @@ const project = new GemeenteNijmegenTsPackage({
   deps: [
     '@aws-sdk/client-dynamodb',
     '@aws-sdk/util-dynamodb',
-    '@ver-id/node-client',
+    '@ver-id/node-client@^0.13.0',
     'dotenv',
     'jsonwebtoken',
     'zod',
+    'pg',
   ],
   jestOptions: {
     jestConfig: {
