@@ -1,19 +1,21 @@
 # Attestation Rulebook for attestations of type Permits — Street Trading (Standplaatsvergunning)
 
-| Version | Date       | Description                                                                |
-| ------- | ---------- | -------------------------------------------------------------------------- |
-| 1.0     | 24-06-2025 | First version                                                              |
-| 1.1     | 11-05-2026 | Aligned with Permits base Rulebook v1.4 (PuB-EAA-only, SD-JWT VC-only).    |
+| Field | Value |
+| --- | --- |
+| Status | Draft |
+| Created | 2026-05-11 |
+| Updated | 2026-05-11 |
+| Extends | [base.md](./base.md) |
+| Authors | Marnix Dessing (Gemeente Nijmegen), Sten Reijers (Ver.iD) |
+| Feedback | [github.com/GemeenteNijmegen/attestatie-registratie-component](https://github.com/GemeenteNijmegen/attestatie-registratie-component/) |
+
+## Versions
+
+| Version | Date | Description |
+| --- | --- | --- |
+| 1.0 | 2026-05-11 | First version. Extends Permits base Rulebook v1.0 with location-bound attributes (`locatie`, `type_locatie`) and the `vct` `urn:eudi:nl:vng:permit:streettrading:1`. |
 
 This Rulebook is an **extension** of the base Permits Attestation Rulebook defined in [base.md](./base.md). All chapters, sections, requirements, attributes, metadata, encoding rules, trust-anchor mechanisms, revocation mechanisms, compliance statements and references defined in [base.md](./base.md) apply unchanged unless explicitly overridden or extended below. Only the additions specific to street-trading permits (NL: *standplaatsvergunning*) are defined here.
-
-* Author(s):
-    * Marnix Dessing (Gemeente Nijmegen)
-    * Sten Reijers (Ver.iD)
-
-**Feedback:**
-
-* [https://github.com/GemeenteNijmegen/attestatie-registratie-component](https://github.com/GemeenteNijmegen/attestatie-registratie-component/)
 
 ## 1 Introduction
 
@@ -31,9 +33,9 @@ The chapter overview and Annex VII / [Topic 12] requirements stated in [base.md 
 
 [base.md §2.1](./base.md#21-introduction) applies unchanged. Within the base classification, a street-trading permit is identified by:
 
-* `upl_naam` = `"Standplaatsvergunning"` — the cross-authority UPL anchor;
-* `product_naam` and `product_type_code` — local to the granting municipality;
-* `vct` = `urn:eudi:nl:vng:permit:streettrading:1` (see Section 3.2).
+- `upl_naam` = `"Standplaatsvergunning"` — the cross-authority UPL anchor;
+- `product_naam` and `product_type_code` — local to the granting municipality;
+- `vct` = `urn:eudi:nl:vng:permit:streettrading:1` (see Section 3.2).
 
 ### 2.2 Mandatory attributes
 
@@ -56,8 +58,8 @@ Not specified beyond [base.md §2.4](./base.md#24-conditional-attributes).
 
 The mandatory metadata defined in [base.md §2.5](./base.md#25-mandatory-metadata) (`issuing_authority`, `issuing_country`, `attestation_legal_category`, `cryptographically_bound_to`) apply unchanged. For street-trading permits:
 
-* `attestation_legal_category` SHALL be `"PuB-EAA"`.
-* `cryptographically_bound_to` SHALL be `"urn:eudi:pid:1"`.
+- `attestation_legal_category` SHALL be `"PuB-EAA"`.
+- `cryptographically_bound_to` SHALL be `"urn:eudi:pid:1"`.
 
 No additional metadata is defined by this Rulebook.
 
@@ -79,7 +81,7 @@ Not applicable; mdoc encoding SHALL NOT be used (see [base.md §3.1](./base.md#3
 
 The encoding rules of [base.md §3.2](./base.md#32-sd-jwt-vc-based-encoding) apply unchanged. The following value is specific to this Rulebook:
 
-* `vct` SHALL be `urn:eudi:nl:vng:permit:streettrading:1`, formed by extending the base URN `urn:eudi:nl:vng:permit:1` with the type segment `streettrading` before the version, as prescribed by [base.md §3.2](./base.md#32-sd-jwt-vc-based-encoding).
+- `vct` SHALL be `urn:eudi:nl:vng:permit:streettrading:1`, formed by extending the base URN `urn:eudi:nl:vng:permit:1` with the type segment `streettrading` before the version, as prescribed by [base.md §3.2](./base.md#32-sd-jwt-vc-based-encoding).
 
 The street-trading-specific claims are encoded as follows:
 
