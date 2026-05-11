@@ -29,7 +29,7 @@ This Rulebook defines the base attestation type for **permits** issued by Dutch 
     - [1.2 Document structure](#12-document-structure)
     - [1.3 Key words](#13-key-words)
     - [1.4 Terminology](#14-terminology)
-  - [2 Extension by sub-type Rulebooks](#2-extension-by-sub-type-rulebooks)
+  - [2 Extension model](#2-extension-model)
   - [3 Attestation attributes and metadata](#3-attestation-attributes-and-metadata)
     - [Chapter overview and requirements](#chapter-overview-and-requirements)
     - [3.1 Introduction](#31-introduction)
@@ -72,14 +72,25 @@ statements of fact.
 
 This document uses the terminology specified in Annex 1 of the ARF.
 
-## 2 Extension by sub-type Rulebooks
+## 2 Extension model
 
-Concrete permit types (for example *standplaatsvergunning*, *evenementenvergunning*) are defined by **sub-type Rulebooks** that extend this base. A sub-type Rulebook inherits every requirement of this base Rulebook unchanged, MAY add type-specific attributes following the claim-naming policy in [Section 4.2](#42-sd-jwt-vc-based-encoding), and MAY tighten an inherited requirement (e.g. raise OPTIONAL to MANDATORY), but SHALL NOT loosen one except through the knobs listed below. Claim semantics, the base `vct` URN structure, and the fixed value `"PuB-EAA"` of `attestation_legal_category` SHALL NOT be changed. A sub-type Rulebook silent on a knob inherits the default.
+This Rulebook sits at the root of a three-tier hierarchy:
 
-| Knob                                                                         | Override choices                                                                                                                    | Cascading consequences                                                                                                                                                                                                                  |
-|------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Device binding (`cnf`) — [Section 4.2](#42-sd-jwt-vc-based-encoding)         | (a) **keep** (default); (b) **waive**                                                                                               | If waived: omit `cnf`; cross-credential binding is force-waived (it is built on device binding); omit `cryptographically_bound_to`; conform to ISSU_66 of [Topic Z] for refresh-token re-issuance.                                      |
-| Cross-credential cryptographic binding — [Chapter 5](#5-attestation-usage)   | (a) **keep PID anchor** (default, `vct = "urn:eudi:pid:1"`); (b) **override anchor** to another credential's `vct`; (c) **waive**   | If overridden: chosen anchor SHALL itself be device-bound and issued to the same Wallet Unit; `cryptographically_bound_to` carries the new `vct`. If waived: omit `cryptographically_bound_to`; device binding MAY still be retained.   |
+1. **Base** (this Rulebook) — requirements common to every permit.
+2. **Profile** Rulebooks — fix the binding-related knobs for a class of permits. A sub-type Rulebook SHALL extend exactly one of the profiles defined below.
+3. **Sub-type** Rulebooks — define individual permit categories (e.g. *standplaatsvergunning*, *evenementenvergunning*) by extending exactly one profile.
+
+A sub-type Rulebook inherits every requirement of the base Rulebook and of its chosen profile unchanged, MAY add type-specific attributes following the claim-naming policy in [Section 4.2](#42-sd-jwt-vc-based-encoding), and MAY tighten an inherited requirement (e.g. raise OPTIONAL to MANDATORY), but SHALL NOT loosen one. Claim semantics, the base `vct` URN structure, and the fixed value `"PuB-EAA"` of `attestation_legal_category` SHALL NOT be changed. A sub-type Rulebook SHALL NOT redefine the binding knobs at the sub-type level; if no profile fits, the Scheme Provider SHALL define an additional profile rather than overriding at the sub-type. The selected profile name SHALL appear as a segment of the sub-type's `vct` URN, for example `urn:eudi:nl:vng:permit:personal:streettrading:v1`.
+
+| Profile         | Device binding (`cnf`)   | Cross-cred binding   | Anchor `vct`                                                                                                                                                                    | Typical use cases                                                                                                                                                                                                                                                                                                            |
+|-----------------|--------------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `personal`      | yes                      | yes                  | `urn:eudi:pid:1`                                                                                                                                                                | Permits issued to a natural person (parkeervergunning, standplaatsvergunning, particuliere evenementenvergunning, hondenuitlaatvergunning, …).                                                                                                                                                                               |
+| `business`      | yes                      | yes                  | Chamber of Commerce registration attestation (`vct` per the KvK Rulebook)                                                                                                       | Permits issued to a legal entity (horecavergunning, terrasvergunning, drank- en horecavergunning, exploitatievergunning, omgevingsvergunning voor bouw door aannemer, …).                                                                                                                                                    |
+| `object`        | yes                      | yes                  | Object-registry attestation (e.g. `urn:eudi:rdw:1` for vehicles, future Kadaster `vct` for properties); the specific anchor `vct` is fixed by the extending sub-type Rulebook   | Permits attached to a real-world object rather than to a person (milieuzone-ontheffing op kenteken, parkeerontheffing op kenteken, omgevingsvergunning gekoppeld aan perceel, …).                                                                                                                                            |
+| `device-only`   | yes                      | no                   | (n/a)                                                                                                                                                                           | Device-bound permits where holder identity is conveyed by attributes inside the permit itself or by claim-based binding at presentation time. Uncommon.                                                                                                                                                                      |
+| `bearer`        | no                       | no                   | (n/a)                                                                                                                                                                           | Transferable / bearer-like permits where uncloneability is not a requirement (bezoekersparkeerkaart, evenementenpas voor een groep, day-passes). The sub-type SHALL conform to ISSU_66 of [Topic Z] for refresh-token re-issuance and SHALL document the residual risk that the attestation can be copied between devices.   |
+
+The combination *device binding = no, cross-credential binding = yes* is invalid: cross-credential cryptographic binding is built on top of device binding via ACP_05 of [Topic 18] and cannot exist without it. No profile is defined for this combination.
 
 ## 3 Attestation attributes and metadata
 
@@ -126,6 +137,8 @@ Sections 2.2 - 2.7 list each attribute and metadata field with its data identifi
 | kenmerk             | Unique reference number assigned by the granting authority to identify the issued permit. | string        | 7f1aa4b5-3193-49d6-ba76-063e797f1e3f |
 | geldig_van          | Start date of validity for this permit.                                                   | full-date     | 2026-01-01                           |
 | geldig_tot          | End date of validity for this permit.                                                     | full-date     | 2027-01-01                           |
+
+*Open profile-level decision (see [Chapter 2](#2-extension-model)): this Rulebook does not currently impose a maximum validity duration on a permit (no upper bound on `geldig_tot − geldig_van`). The Scheme Provider may, in a future version of this Rulebook, promote a max-validity cap to a profile-level decision — for example ≤ 24h for `bearer`, ≤ 1 year for `vehicle`, ≤ 5 years for permits issued under firearms or hazardous-materials legislation — to prevent abuse of overly long-lived permits.*
 
 ### 3.3 Optional attributes
 
@@ -200,9 +213,7 @@ A sub-type Rulebook extending this base MAY waive the device-binding requirement
 
 #### Claim naming policy
 
-All claims defined by this Rulebook are **Private Claim Names** as defined in [RFC 7519], scoped by the `vct` specified above. This Rulebook does not introduce, and SHALL NOT be extended to introduce, IANA-registered claim names or URI-form Public Names. Each claim identifier SHALL be lower_snake_case ASCII and SHALL be unique within the scope of this Rulebook and its sub-types. Sub-type Rulebooks extending this base SHALL follow the same policy, SHALL NOT redefine the meaning of any identifier defined here, and when specifying new attributes SHOULD consider existing identifier conventions and syntaxes (ARB_07). This selection exclusively elects the Private Claim Name option of [RFC 7519] and thereby satisfies ARB_06b.
-
-The JWT and SD-JWT VC envelope claims — `iss`, `iat`, `exp`, `nbf`, `cnf`, `vct`, `vct#integrity` (where present), `_sd`, and `_sd_alg` — are governed by [RFC 7519] and [SD-JWT VC] respectively and are out of scope for this policy; they are used as defined in those specifications.
+All claims defined by this Rulebook are **Private Claim Names** as defined in [RFC 7519], scoped by the `vct` specified above. This Rulebook does not introduce, and SHALL NOT be extended to introduce, IANA-registered claim names or URI-form Public Names. Each claim identifier SHALL be lower_snake_case ASCII and SHALL be unique within the scope of this Rulebook and its sub-types. Sub-type Rulebooks extending this base SHALL follow the same policy, MUST NOT redefine the meaning of any identifier defined here, and when specifying new attributes SHOULD consider existing identifier conventions and syntaxes (ARB_07). This selection exclusively elects the Private Claim Name option of [RFC 7519] and thereby satisfies ARB_06b.
 
 #### Private claims defined by this Rulebook
 
@@ -284,6 +295,10 @@ Whenever the Relying Party needs to identify the entity to whom the permit was g
 
 **Transactional data.** Permit attestations do not carry transactional data in the sense of [Topic 20] of Annex 2 of the ARF.
 
+**Re-issuance.** Re-issuance of permits is currently governed only by the inherited High-Level Requirements ISSU_65 (for device-bound attestations, refresh tokens SHALL be bound to the same WSCA/WSCD as the replaced attestation) and ISSU_66 of [Topic Z] (for non-device-bound attestations, refresh tokens SHALL still be bound to a WSCA/WSCD on the same Wallet Unit). This Rulebook does not pin a maximum refresh cadence, nor whether re-authentication of the anchor credential is required on each refresh.
+
+*Open profile-level decision (see [Chapter 2](#2-extension-model)): the Scheme Provider may, in a future version of this Rulebook, promote refresh cadence and anchor re-authentication policy to a profile-level decision — for example a `bearer` profile might require re-issuance every 24h with re-authentication, while a `personal` profile might allow silent refresh against an unchanged WSCA/WSCD-bound PID for the lifetime of the permit.*
+
 ## 6 Trust anchors
 
 *Mechanisms for the provision of a trust anchor that SHALL
@@ -312,6 +327,8 @@ For PuB-EAA it SHALL be defined whether only short-lived attestations will be us
 that will be specified by the Commission.
 - Use an Attestation Revocation List mechanism included in a Technical Specification
 that will be specified by the Commission.
+
+*Open profile-level decision (see [Chapter 2](#2-extension-model)): the revocation mechanism is currently inherited rulebook-wide. The Scheme Provider may, in a future version of this Rulebook, promote the choice between short-lived (≤ 24h), Attestation Status List, and Attestation Revocation List to a profile-level decision, so that different permit classes (for example `bearer` day-passes versus `business` operating permits) can use different mechanisms without each sub-type having to declare its own choice independently.*
 
 ## 8 Compliance
 
