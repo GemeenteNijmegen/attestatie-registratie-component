@@ -1,18 +1,18 @@
 # Attestation Rulebook for attestations of type Permits
 
-| Field | Value |
-| --- | --- |
-| Status | Draft |
-| Created | 2026-05-11 |
-| Updated | 2026-05-11 |
-| Authors | Marnix Dessing (Gemeente Nijmegen), Sten Reijers (Ver.iD) |
+| Field    | Value                                                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Status   | Draft                                                                                                                                 |
+| Created  | 2026-05-11                                                                                                                            |
+| Updated  | 2026-05-11                                                                                                                            |
+| Authors  | Marnix Dessing (Gemeente Nijmegen), Sten Reijers (Ver.iD)                                                                             |
 | Feedback | [github.com/GemeenteNijmegen/attestatie-registratie-component](https://github.com/GemeenteNijmegen/attestatie-registratie-component/) |
 
 ## Versions
 
-| Version | Date | Description |
-| --- | --- | --- |
-| 1.0 | 2026-05-11 | First version of the Permits base Attestation Rulebook. Defines a generic, UPL-classified PuB-EAA permit type encoded as SD-JWT VC. |
+| Version | Date       | Description                                                                                                                         |
+| ------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0     | 2026-05-11 | First version of the Permits base Attestation Rulebook. Defines a generic, UPL-classified PuB-EAA permit type encoded as SD-JWT VC. |
 
 ## 1 Introduction
 
@@ -29,27 +29,32 @@ This Rulebook defines the base attestation type for **permits** issued by Dutch 
     - [1.2 Document structure](#12-document-structure)
     - [1.3 Key words](#13-key-words)
     - [1.4 Terminology](#14-terminology)
-  - [2 Attestation attributes and metadata](#2-attestation-attributes-and-metadata)
+  - [2 Extension by sub-type Rulebooks](#2-extension-by-sub-type-rulebooks)
+  - [3 Attestation attributes and metadata](#3-attestation-attributes-and-metadata)
     - [Chapter overview and requirements](#chapter-overview-and-requirements)
-    - [2.1 Introduction](#21-introduction)
-    - [2.2 Mandatory attributes](#22-mandatory-attributes)
-    - [2.3 Optional attributes](#23-optional-attributes)
-    - [2.4 Conditional attributes](#24-conditional-attributes)
-    - [2.5 Mandatory metadata](#25-mandatory-metadata)
-    - [2.6 Optional metadata](#26-optional-metadata)
-    - [2.7 Conditional metadata](#27-conditional-metadata)
-  - [3 Attestation encoding](#3-attestation-encoding)
-    - [3.1 ISO/IEC 18013-5-compliant encoding](#31-isoiec-18013-5-compliant-encoding)
-    - [3.2 SD-JWT VC-based encoding](#32-sd-jwt-vc-based-encoding)
+    - [3.1 Introduction](#31-introduction)
+    - [3.2 Mandatory attributes](#32-mandatory-attributes)
+    - [3.3 Optional attributes](#33-optional-attributes)
+    - [3.4 Conditional attributes](#34-conditional-attributes)
+    - [3.5 Mandatory metadata](#35-mandatory-metadata)
+    - [3.6 Optional metadata](#36-optional-metadata)
+    - [3.7 Conditional metadata](#37-conditional-metadata)
+  - [4 Attestation encoding](#4-attestation-encoding)
+    - [4.1 ISO/IEC 18013-5-compliant encoding](#41-isoiec-18013-5-compliant-encoding)
+    - [4.2 SD-JWT VC-based encoding](#42-sd-jwt-vc-based-encoding)
       - [Verifiable Credential Type (`vct`)](#verifiable-credential-type-vct)
       - [Type Metadata Document](#type-metadata-document)
       - [Key binding (`cnf`)](#key-binding-cnf)
-    - [3.3 W3C Verifiable Credentials Data Model-based encoding](#33-w3c-verifiable-credentials-data-model-based-encoding)
-  - [4 Attestation usage](#4-attestation-usage)
-  - [5 Trust anchors](#5-trust-anchors)
-  - [6 Revocation](#6-revocation)
-  - [7 Compliance](#7-compliance)
-  - [8 References](#8-references)
+      - [Claim naming policy](#claim-naming-policy)
+      - [Private claims defined by this Rulebook](#private-claims-defined-by-this-rulebook)
+      - [Envelope claims populated by Attestation Providers](#envelope-claims-populated-by-attestation-providers)
+      - [Examples](#examples)
+    - [4.3 W3C Verifiable Credentials Data Model-based encoding](#43-w3c-verifiable-credentials-data-model-based-encoding)
+  - [5 Attestation usage](#5-attestation-usage)
+  - [6 Trust anchors](#6-trust-anchors)
+  - [7 Revocation](#7-revocation)
+  - [8 Compliance](#8-compliance)
+  - [9 References](#9-references)
 
 ### 1.3 Key words
 
@@ -67,7 +72,16 @@ statements of fact.
 
 This document uses the terminology specified in Annex 1 of the ARF.
 
-## 2 Attestation attributes and metadata
+## 2 Extension by sub-type Rulebooks
+
+Concrete permit types (for example *standplaatsvergunning*, *evenementenvergunning*) are defined by **sub-type Rulebooks** that extend this base. A sub-type Rulebook inherits every requirement of this base Rulebook unchanged, MAY add type-specific attributes following the claim-naming policy in [Section 4.2](#42-sd-jwt-vc-based-encoding), and MAY tighten an inherited requirement (e.g. raise OPTIONAL to MANDATORY), but SHALL NOT loosen one except through the knobs listed below. Claim semantics, the base `vct` URN structure, and the fixed value `"PuB-EAA"` of `attestation_legal_category` SHALL NOT be changed. A sub-type Rulebook silent on a knob inherits the default.
+
+| Knob                                                                         | Override choices                                                                                                                    | Cascading consequences                                                                                                                                                                                                                  |
+|------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Device binding (`cnf`) — [Section 4.2](#42-sd-jwt-vc-based-encoding)         | (a) **keep** (default); (b) **waive**                                                                                               | If waived: omit `cnf`; cross-credential binding is force-waived (it is built on device binding); omit `cryptographically_bound_to`; conform to ISSU_66 of [Topic Z] for refresh-token re-issuance.                                      |
+| Cross-credential cryptographic binding — [Chapter 5](#5-attestation-usage)   | (a) **keep PID anchor** (default, `vct = "urn:eudi:pid:1"`); (b) **override anchor** to another credential's `vct`; (c) **waive**   | If overridden: chosen anchor SHALL itself be device-bound and issued to the same Wallet Unit; `cryptographically_bound_to` carries the new `vct`. If waived: omit `cryptographically_bound_to`; device binding MAY still be retained.   |
+
+## 3 Attestation attributes and metadata
 
 ### Chapter overview and requirements
 
@@ -75,13 +89,13 @@ This chapter defines, in an encoding-independent manner, all attributes and meta
 
 Permit attestations defined by this Rulebook are PuB-EAAs. The requirements from [Topic 12] for PuB-EAAs map to fields specified in Sections 2.2 and 2.5 as follows:
 
-- **ARB_11** — Annex VII point (a), indication that the attestation is a PuB-EAA: satisfied by the `attestation_legal_category` metadata field (Section 2.5), with fixed value `"PuB-EAA"`. See Section 2.1.
-- **ARB_14** — Annex VII point (b), data unambiguously representing the issuing public body: satisfied by the `issuing_authority` and `issuing_country` metadata fields (Section 2.5).
-- **ARB_16** — Annex VII point (c), data unambiguously representing the entity to which the attributes refer: satisfied via cryptographic binding to the User's PID rather than duplicate subject claims. The binding is advertised by the `cryptographically_bound_to` metadata field (Section 2.5) and enforced at issuance per Chapter 4.
-- **ARB_18** — Annex VII point (e), validity period: satisfied by the `geldig_van` and `geldig_tot` attributes (Section 2.2), reflected at the SD-JWT VC level by the `nbf` and `exp` claims (Section 3.2).
-- **ARB_20** — Annex VII point (h), location of the qualified certificate that signed the PuB-EAA: satisfied via the `x5c` JWS header of the SD-JWT VC together with the QTSP Trusted List trust anchor mechanism specified in Chapter 5.
+- **ARB_11** — Annex VII point (a), indication that the attestation is a PuB-EAA: satisfied by the `attestation_legal_category` metadata field (Section 3.5), with fixed value `"PuB-EAA"`. See Section 3.1.
+- **ARB_14** — Annex VII point (b), data unambiguously representing the issuing public body: satisfied by the `issuing_authority` and `issuing_country` metadata fields (Section 3.5).
+- **ARB_16** — Annex VII point (c), data unambiguously representing the entity to which the attributes refer: satisfied via cryptographic binding to an anchor credential — by default the User's PID, optionally overridden by a sub-type Rulebook (for example to a Chamber of Commerce registration or RDW vehicle-keeper attestation) — rather than duplicate subject claims. The binding is advertised by the `cryptographically_bound_to` metadata field (Section 3.5) and enforced at issuance per Chapter 5.
+- **ARB_18** — Annex VII point (e), validity period: satisfied by the `geldig_van` and `geldig_tot` attributes (Section 3.2), reflected at the SD-JWT VC level by the `nbf` and `exp` claims (Section 4.2).
+- **ARB_20** — Annex VII point (h), location of the qualified certificate that signed the PuB-EAA: satisfied via the `x5c` JWS header of the SD-JWT VC together with the QTSP Trusted List trust anchor mechanism specified in Chapter 6.
 
-### 2.1 Introduction
+### 3.1 Introduction
 
 This Rulebook defines the base permit attestation type shared by every permit attestation issued under this scheme. Specific permit categories (e.g. street-trading, event, parking) are defined in sub-type Rulebooks that extend this base.
 
@@ -94,13 +108,15 @@ Sub-type Rulebooks MAY add type-specific attributes and metadata, but SHALL inhe
 
 According to Annex VII point (a) of the [European Digital Identity Regulation], an indication, at least in a form suitable for automated processing, that the attestation has been issued as a PuB-EAA must be defined. This Rulebook satisfies that requirement through the `attestation_legal_category` metadata field, which for permits is always `"PuB-EAA"`.
 
-The set of data unambiguously representing the entity to which the attested attributes refer, as required by Annex VII point (c) of the [European Digital Identity Regulation], is not duplicated as subject attributes inside the permit. Instead, the permit attestation SHALL be cryptographically bound during issuance, in accordance with ACP_05 and ACP_07 of [Topic 18], to the User's PID (`vct = urn:eudi:pid:1`) on the same Wallet Unit. The identity of the natural person to whom the permit was granted is therefore conveyed by the bound PID at presentation time. This approach complies with the data-minimisation principle: a Relying Party only learns the User's PID attributes when those are explicitly requested. The metadata field `cryptographically_bound_to`, specified in [Section 2.5](#25-mandatory-metadata) below, advertises this binding to Relying Parties.
+The set of data unambiguously representing the entity to which the attested attributes refer, as required by Annex VII point (c) of the [European Digital Identity Regulation], is not duplicated as subject attributes inside the permit. Instead, by default, the permit attestation SHALL be cryptographically bound during issuance, in accordance with ACP_05 and ACP_07 of [Topic 18], to the User's PID (`vct = urn:eudi:pid:1`) on the same Wallet Unit. The identity of the entity to whom the permit was granted is therefore conveyed by the bound anchor credential at presentation time. This approach complies with the data-minimisation principle: a Relying Party only learns the anchor credential's attributes when those are explicitly requested.
 
-The indication of the scheme of attestations required by Annex VII point (f) of the [European Digital Identity Regulation] is conveyed by the `vct` claim defined in [Section 3.2](#32-sd-jwt-vc-based-encoding). The base `vct` for permits defined by this Rulebook is the URN `urn:eudi:nl:vng:permit:1`. Sub-type Rulebooks (e.g. for a specific permit type such as street trading) extend this base by appending a type segment before the version, for example `urn:eudi:nl:vng:permit:streettrading:1`.
+A sub-type Rulebook extending this base MAY override the anchor credential type — for example to a Chamber of Commerce registration attestation for business-related permits, or to an RDW vehicle-keeper attestation for vehicle-related permits — or MAY waive cross-credential binding entirely. The override mechanism is specified in [Section 4.2](#42-sd-jwt-vc-based-encoding) (for the underlying device-binding requirement) and [Chapter 5](#5-attestation-usage) (for the cross-credential binding requirement). The metadata field `cryptographically_bound_to`, specified in [Section 3.5](#35-mandatory-metadata) below, advertises the selected binding to Relying Parties.
+
+The indication of the scheme of attestations required by Annex VII point (f) of the [European Digital Identity Regulation] is conveyed by the `vct` claim defined in [Section 4.2](#42-sd-jwt-vc-based-encoding). The base `vct` for permits defined by this Rulebook is the URN `urn:eudi:nl:vng:permit:1`. Sub-type Rulebooks (e.g. for a specific permit type such as street trading) extend this base by appending a type segment before the version, for example `urn:eudi:nl:vng:permit:streettrading:1`.
 
 Sections 2.2 - 2.7 list each attribute and metadata field with its data identifier, semantic definition, data type, and an example value. Identifiers are lowercase snake_case and machine-readable.
 
-### 2.2 Mandatory attributes
+### 3.2 Mandatory attributes
 
 | **Data Identifier** | **Definition**                                                                            | **Data type** | **Example value**                    |
 | ------------------- | ----------------------------------------------------------------------------------------- | ------------- | ------------------------------------ |
@@ -111,38 +127,40 @@ Sections 2.2 - 2.7 list each attribute and metadata field with its data identifi
 | geldig_van          | Start date of validity for this permit.                                                   | full-date     | 2026-01-01                           |
 | geldig_tot          | End date of validity for this permit.                                                     | full-date     | 2027-01-01                           |
 
-### 2.3 Optional attributes
+### 3.3 Optional attributes
 
 Not specified.
 
-### 2.4 Conditional attributes
+### 3.4 Conditional attributes
 
 Not specified.
 
-### 2.5 Mandatory metadata
+### 3.5 Mandatory metadata
 
-| **Data Identifier**        | **Definition**                                                                                                                                                                                                                                                                                                            | **Data type** | **Example value** |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------- |
-| issuing_authority          | Name of the administrative authority that issued the permit.                                                                                                                                                                                                                                                              | string        | Gemeente Nijmegen |
-| issuing_country            | Alpha-2 country code (ISO 3166-1) of the country of the issuing authority.                                                                                                                                                                                                                                                | string        | NL                |
-| attestation_legal_category | Legal category under which the attestation is issued. For permits this value is always `"PuB-EAA"`.                                                                                                                                                                                                                       | string        | PuB-EAA           |
-| cryptographically_bound_to | Indicates that during issuance the Attestation Provider obtained, according to ACP_05 of [Topic 18], proof that the private key of this attestation is managed by the same WSCA/WSCD as the private key of a PID on the same Wallet Unit. The value SHALL be the `vct` of the PID. See ARB_28 in [Topic 12] and Chapter 4. | string (vct)  | urn:eudi:pid:1    |
+| **Data Identifier**        | **Definition**                                                                                                                                                                                                                                                                                                             | **Data type** | **Example value** |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------- |
+| issuing_authority          | Name of the administrative authority that issued the permit.                                                                                                                                                                                                                                                               | string        | Gemeente Nijmegen |
+| issuing_country            | Alpha-2 country code (ISO 3166-1) of the country of the issuing authority.                                                                                                                                                                                                                                                 | string        | NL                |
+| attestation_legal_category | Legal category under which the attestation is issued. For permits this value is always `"PuB-EAA"`.                                                                                                                                                                                                                        | string        | PuB-EAA           |
+| cryptographically_bound_to | Identifier (`vct`) of the anchor credential bound to this attestation via the shared WSCA/WSCD per ACP_05 of [Topic 18]. Default `urn:eudi:pid:1`. See note below and Chapter 5.                                                                                                                                           | string (vct)  | urn:eudi:pid:1    |
 
-### 2.6 Optional metadata
+Note on `cryptographically_bound_to`. The default anchor for permit attestations defined by this base Rulebook is the User's PID (`urn:eudi:pid:1`). A sub-type Rulebook extending this base MAY specify a different anchor credential type whose `vct` reflects the entity to which the permit's attributes refer — for example a Chamber of Commerce registration attestation for business-related permits, or an RDW vehicle-keeper attestation for vehicle-related permits. A sub-type Rulebook MAY also waive cross-credential binding entirely (consistent with waiving device binding per Section 4.2), in which case the `cryptographically_bound_to` field SHALL be omitted from issued attestations. A sub-type Rulebook silent on this point inherits the default. The selected anchor credential SHALL itself be a device-bound PID or attestation issued to the same Wallet Unit, so that the WSCA/WSCD-shared-key proof of ACP_05 can be obtained.
 
-Not specified.
-
-### 2.7 Conditional metadata
+### 3.6 Optional metadata
 
 Not specified.
 
-## 3 Attestation encoding
+### 3.7 Conditional metadata
 
-### 3.1 ISO/IEC 18013-5-compliant encoding
+Not specified.
 
-Attestations of this type SHALL NOT be issued in the [ISO/IEC 18013-5] mdoc format. Proximity/offline presentation is not required (ARB_02); see Section 3.2 for the exclusive encoding.
+## 4 Attestation encoding
 
-### 3.2 SD-JWT VC-based encoding
+### 4.1 ISO/IEC 18013-5-compliant encoding
+
+Attestations of this type SHALL NOT be issued in the [ISO/IEC 18013-5] mdoc format. Proximity/offline presentation is not required (ARB_02); see Section 4.2 for the exclusive encoding.
+
+### 4.2 SD-JWT VC-based encoding
 
 Attestations of this type SHALL be encoded as SD-JWT VC, complying with the 'SD-JWT VCs' profile specified in [HAIP] (see ARB_01b in [Topic 12]).
 
@@ -174,53 +192,55 @@ Defining a Type Metadata Document as described in Chapter 6 of [SD-JWT VC] is OP
 
 #### Key binding (`cnf`)
 
-The permit SD-JWT VC SHALL contain a `cnf` claim as specified in [SD-JWT VC], carrying the public key of the device-bound key pair generated by the Wallet Unit for this attestation. This key is used by the WSCA/WSCD to provide the cryptographic binding proof to the User's PID required by ACP_05 of [Topic 18]; see Chapter 4.
+By default, permit attestations defined by this base Rulebook or any sub-type Rulebook extending it SHALL be device-bound. The SD-JWT VC SHALL contain a `cnf` claim as specified in [SD-JWT VC], carrying the public key of a key pair generated by the Wallet Unit's WSCA/WSCD specifically for this attestation.
 
-*Additionally, when specifying new attributes, existing conventions
-for attribute identifier values and attribute syntaxes SHOULD
-be considered (see ARB_07 in [Topic 12]).*
+Device binding, on its own, only guarantees that the attestation cannot be transferred to another device: it binds the attestation to a private key held in the Wallet Unit's WSCA/WSCD, and to nothing else. It does not, by itself, tie the attestation to any other credential in the Wallet Unit or to any natural or legal person. Cross-credential cryptographic binding (for example, to the User's PID, a Chamber of Commerce registration, or another anchor credential) is a separate concern, specified in [Chapter 5](#5-attestation-usage), and is built on top of device binding via ACP_05 of [Topic 18].
 
-*Rulebook authors SHALL ensure that each claim name is either
+A sub-type Rulebook extending this base MAY waive the device-binding requirement (consistent with the SHOULD verb of ISSU_27 in [Annex 2] and the Scheme Provider's discretion under ARB_30). A sub-type Rulebook that waives device-binding SHALL state so explicitly, SHALL omit the `cnf` claim from issued credentials, and SHALL also waive the cross-credential cryptographic binding specified in Chapter 5 — because that mechanism is built on top of device binding — and SHALL omit the `cryptographically_bound_to` metadata field (see [Section 3.5](#35-mandatory-metadata)). A sub-type Rulebook that retains device-binding MAY independently waive cross-credential binding alone; see [Chapter 5](#5-attestation-usage). A sub-type Rulebook silent on this point inherits the default device-binding requirement.
 
-- included in the IANA registry for JWT claims,
-- is a Public Name as defined in [RFC 7519], or
-- or is a Private Name specific to the attestation type. (see ARB_06b in [Topic 12]).*
+#### Claim naming policy
 
-*For all claims (i.e., all top-level properties, all nested properties, and all array entries),
-the Rulebook SHALL specify whether an Attestation Provider MUST, MAY, or MUST NOT make that
-claim selectively disclosable (see ARB_30 in [Topic 12]).*
+All claims defined by this Rulebook are **Private Claim Names** as defined in [RFC 7519], scoped by the `vct` specified above. This Rulebook does not introduce, and SHALL NOT be extended to introduce, IANA-registered claim names or URI-form Public Names. Each claim identifier SHALL be lower_snake_case ASCII and SHALL be unique within the scope of this Rulebook and its sub-types. Sub-type Rulebooks extending this base SHALL follow the same policy, SHALL NOT redefine the meaning of any identifier defined here, and when specifying new attributes SHOULD consider existing identifier conventions and syntaxes (ARB_07). This selection exclusively elects the Private Claim Name option of [RFC 7519] and thereby satisfies ARB_06b.
 
-*Rulebook authors SHOULD consider defining a Type Metadata Document for the attestation type
-specified in the Rulebook, as defined in Chapter 6 of [SD-JWT VC]. If such a document is defined,
-it SHOULD contain the Claim Selective Disclosure Metadata (defined in Section 9.3 of [SD-JWT VC])
-for each of the claims, in order to specify if that claim is selectively disclosable (see ARB_31
-in [Topic 12]).*
+The JWT and SD-JWT VC envelope claims — `iss`, `iat`, `exp`, `nbf`, `cnf`, `vct`, `vct#integrity` (where present), `_sd`, and `_sd_alg` — are governed by [RFC 7519] and [SD-JWT VC] respectively and are out of scope for this policy; they are used as defined in those specifications.
 
-*IANA-registered claims should be presented in table that
-includes their data identifier, attribute identifier,
-encoding format, and reference or note. For example,*
+#### Private claims defined by this Rulebook
 
-| **Data Identifier** | **Attribute identifier** | **Encoding format** | **Reference/Notes**   | **Disclosable** |
-| ------------------- | ------------------------ | ------------------- | --------------------- | --------------- |
-| family_name         | family_name              | string              | Section 5.1 of [OIDC] | MUST            |
+A JSON string used in an SD-JWT VC-encoded permit SHALL be encoded in UTF-8 and SHALL support the full Unicode range, unless explicitly specified otherwise in the table below or the references therein.
 
-*A similar table should be used for Public Names and for Private Names specific
-to the attestation type defined in this document. For
-example:*
+The **Selectively disclosable** column specifies the selective-disclosure requirement (per ARB_30): **MUST** — the Attestation Provider SHALL render this claim selectively disclosable using the mechanism of [SD-JWT VC]; **MAY** — at the Attestation Provider's choice; **MUST NOT** — the claim SHALL be included as a directly-disclosed value in the SD-JWT payload, with no selective-disclosure digest.
 
-| **Data Identifier** | **Attribute identifier** | **Encoding format** | **Notes**                             | **Disclosable** |
-| ------------------- | ------------------------ | ------------------- | ------------------------------------- | --------------- |
-| trust_anchor        | trust_anchor             | string              | The trust anchor defined in Section 5 | MUST NOT        |
+The following Private Names specific to the attestation type defined in this document are to be used for permits:
 
-*The corresponding entry for the "attestation_legal_category" attribute defined
-in Section 2.1 SHALL be:*
+| **Data Identifier**        | **Attribute identifier**   | **Encoding format**         | **Notes**                                                                                   | **Selectively disclosable** |
+| -------------------------- | -------------------------- | --------------------------- | ------------------------------------------------------------------------------------------- | --------------------------- |
+| upl_naam                   | upl_naam                   | string                      | Defined in [Section 3.2](#32-mandatory-attributes). Value drawn from the Dutch UPL register | MUST                        |
+| product_naam               | product_naam               | string                      | Defined in [Section 3.2](#32-mandatory-attributes)                                          | MUST                        |
+| product_type_code          | product_type_code          | string                      | Defined in [Section 3.2](#32-mandatory-attributes)                                          | MUST                        |
+| kenmerk                    | kenmerk                    | string                      | Defined in [Section 3.2](#32-mandatory-attributes). Unique reference of the issued permit   | MUST                        |
+| geldig_van                 | geldig_van                 | full-date ([RFC 3339])      | Defined in [Section 3.2](#32-mandatory-attributes). Administrative start of validity        | MUST                        |
+| geldig_tot                 | geldig_tot                 | full-date ([RFC 3339])      | Defined in [Section 3.2](#32-mandatory-attributes). Administrative end of validity          | MUST                        |
+| issuing_authority          | issuing_authority          | string                      | Defined in [Section 3.5](#35-mandatory-metadata)                                            | MUST NOT                    |
+| issuing_country            | issuing_country            | string (ISO 3166-1 alpha-2) | Defined in [Section 3.5](#35-mandatory-metadata)                                            | MUST NOT                    |
+| attestation_legal_category | attestation_legal_category | string                      | Defined in [Section 3.5](#35-mandatory-metadata). Fixed value `"PuB-EAA"`                   | MUST NOT                    |
+| cryptographically_bound_to | cryptographically_bound_to | string                      | See [Section 3.5](#35-mandatory-metadata); default `urn:eudi:pid:1`, sub-type MAY override. | MUST NOT                    |
 
-| **Data Identifier**        | **Attribute identifier**   | **Encoding format** | **Notes**                                                                           | **Disclosable** |
-| -------------------------- | -------------------------- | ------------------- | ----------------------------------------------------------------------------------- | --------------- |
-| attestation_legal_category | attestation_legal_category | string              | Defined in Attestation Rulebook template. Always `"PuB-EAA"` for permits.           | MUST NOT        |
-| cryptographically_bound_to | cryptographically_bound_to | string              | Defined in [Section 2.5](#25-mandatory-metadata). Always `"urn:eudi:pid:1"`.        | MUST NOT        |
+Note: the standard JWT claims `nbf` and `exp` are used to express the technical validity period of an SD-JWT VC-compliant permit; see the envelope-claim mapping below.
 
-Finally, illustrative examples SHALL be included.
+#### Envelope claims populated by Attestation Providers
+
+The following JWT and SD-JWT VC envelope claims SHALL be populated as indicated. These claims are not defined by this Rulebook; their syntax and semantics are governed by the cited specifications.
+
+| **Claim** | **Source**  | **Population rule**                                                                          |
+| --------- | ----------- | -------------------------------------------------------------------------------------------- |
+| iss       | [RFC 7519]  | The Attestation Provider's identifier as registered in the QTSP Trusted List; see Chapter 6. |
+| iat       | [RFC 7519]  | Time of issuance.                                                                            |
+| nbf       | [RFC 7519]  | Set equal to `geldig_van` (administrative start of validity).                                |
+| exp       | [RFC 7519]  | Set equal to `geldig_tot` (administrative end of validity).                                  |
+| cnf       | [SD-JWT VC] | Public key of the device-bound key pair; see [Key binding (`cnf`)](#key-binding-cnf).        |
+| vct       | [SD-JWT VC] | The URN defined in [Verifiable Credential Type (`vct`)](#verifiable-credential-type-vct).    |
+
+#### Examples
 
 [RULEBOOK AUTHOR TO PROVIDE AN EXAMPLE OF THE JWT CLAIM SET USED BY THE PROVIDER]
 
@@ -229,37 +249,42 @@ Finally, illustrative examples SHALL be included.
 [RULEBOOK AUTHOR TO PROVIDE AN EXAMPLE OF A HUMAN READABLE VERSION OF THE SD-JWT PAYLOAD
 AND A DESCRIPTION OF THE DISCLOSURES INCLUDED IN THE EXAMPLE]
 
-### 3.3 W3C Verifiable Credentials Data Model-based encoding
+### 4.3 W3C Verifiable Credentials Data Model-based encoding
 
-Attestations of this type SHALL NOT be issued in the [W3C VCDM v2.0] format; see Section 3.2 for the exclusive encoding.
+Attestations of this type SHALL NOT be issued in the [W3C VCDM v2.0] format; see Section 4.2 for the exclusive encoding.
 
-## 4 Attestation usage
+## 5 Attestation usage
 
 A permit attestation is presented online by a Wallet Unit to a Relying Party (for example a municipal service desk, an enforcement officer's mobile app, or an event organiser) that needs to verify whether the User holds a valid permit of a given type. Specific permit Rulebooks extending this base Rulebook describe the concrete use cases for their permit type.
 
-**Device binding (ARB_34).** Permit attestations SHALL be device-bound. The SD-JWT VC SHALL contain a `cnf` claim carrying the public key of a key pair generated by the Wallet Unit's WSCA/WSCD; see Section 3.2.
+**Device binding (ARB_34).** By default, permit attestations SHALL be device-bound. The SD-JWT VC SHALL contain a `cnf` claim carrying the public key of a key pair generated by the Wallet Unit's WSCA/WSCD; see Section 4.2. Device binding, taken on its own, only prevents the attestation from being transferred to another device — it does not, by itself, link the attestation to any other credential or to a natural or legal person. A sub-type Rulebook MAY waive device binding subject to the conditions in [Section 4.2](#42-sd-jwt-vc-based-encoding); a sub-type that waives device binding necessarily also waives the cross-credential binding specified below.
 
-**Cryptographic binding to the PID (ARB_28, Topic 18).** Permit attestations SHALL be cryptographically bound, during issuance, to the User's PID with `vct = "urn:eudi:pid:1"` on the same Wallet Unit:
+**Cross-credential cryptographic binding (ARB_28, Topic 18).** By default, permit attestations SHALL be cryptographically bound, during issuance, to the User's PID with `vct = "urn:eudi:pid:1"` on the same Wallet Unit. A sub-type Rulebook extending this base MAY:
 
-1. Before issuing the permit, the Attestation Provider SHALL verify that the permit indeed belongs to the User identified by the PID (ACP_07 of [Topic 18]).
-2. The Attestation Provider SHALL request and obtain, in accordance with ACP_05 of [Topic 18], a proof that the private key of the permit attestation is managed by the same WSCA/WSCD as the private key of the User's PID.
+- specify a different anchor credential — for example a Chamber of Commerce registration attestation for a business-related permit, or an RDW vehicle-keeper attestation for a vehicle-related permit — by overriding the value of `cryptographically_bound_to` with the `vct` of that anchor; or
+- waive cross-credential binding entirely, in which case the `cryptographically_bound_to` field SHALL be omitted from issued attestations. A sub-type Rulebook silent on this point inherits the default (PID-anchored binding).
+
+The selected anchor credential SHALL itself be a device-bound credential issued to the same Wallet Unit. Where this Rulebook applies cross-credential binding (whether to the PID by default or to an anchor specified by a sub-type), the following requirements SHALL be met:
+
+1. Before issuing the permit, the Attestation Provider SHALL verify that the permit indeed belongs to the entity identified by the anchor credential (ACP_07 of [Topic 18]).
+2. The Attestation Provider SHALL request and obtain, in accordance with ACP_05 of [Topic 18], a proof that the private key of the permit attestation is managed by the same WSCA/WSCD as the private key of the anchor credential.
 3. The Attestation Provider SHALL NOT issue the permit if this proof cannot be obtained.
-4. The metadata field `cryptographically_bound_to` (see [Section 2.5](#25-mandatory-metadata)) SHALL be present in every permit and SHALL carry the value `"urn:eudi:pid:1"`.
+4. The metadata field `cryptographically_bound_to` (see [Section 3.5](#35-mandatory-metadata)) SHALL be present in every permit and SHALL carry the `vct` of the anchor credential.
 
 **Relying Party obligations.** A Relying Party verifying a permit SHALL:
 
-- Verify the qualified electronic signature or seal of the issuing PuB-EAA Provider over the SD-JWT VC, including the certificate chain up to the QTSP trust anchor (see Chapter 5).
+- Verify the qualified electronic signature or seal of the issuing PuB-EAA Provider over the SD-JWT VC, including the certificate chain up to the QTSP trust anchor (see Chapter 6).
 - Verify the technical validity period of the SD-JWT VC (`nbf`, `exp`) and the administrative validity period (`geldig_van`, `geldig_tot`).
-- Verify the key-binding signature created using the private key referenced by the `cnf` claim, as specified in [SD-JWT VC] / [HAIP].
-- Check the revocation status of the permit (see Chapter 6).
+- If a `cnf` claim is present, verify the key-binding signature created using the private key referenced by it, as specified in [SD-JWT VC] / [HAIP].
+- Check the revocation status of the permit (see Chapter 7).
 
-Whenever the Relying Party needs to identify the natural person to whom the permit was granted (which is the case for most permit use cases, since permits are personal), the Relying Party SHALL also request the bound PID from the Wallet Unit and SHALL request a proof of cryptographic binding between the permit and the PID, as described in the note to ARB_28 in [Topic 12].
+Whenever the Relying Party needs to identify the entity to whom the permit was granted, the Relying Party SHALL also request the anchor credential identified by the `cryptographically_bound_to` field from the Wallet Unit and SHALL request a proof of cryptographic binding between the permit and that anchor credential, as described in the note to ARB_28 in [Topic 12]. For most personal permit use cases the anchor credential will be the User's PID; for business- or vehicle-related sub-type Rulebooks it may instead be a Chamber of Commerce or RDW attestation, as configured by that sub-type.
 
-**Presentation.** Permit attestations are presented exclusively online, using the [HAIP] profile of OpenID4VP. Proximity/offline presentation using [ISO/IEC 18013-5] is not supported (see Section 3.1).
+**Presentation.** Permit attestations are presented exclusively online, using the [HAIP] profile of OpenID4VP. Proximity/offline presentation using [ISO/IEC 18013-5] is not supported (see Section 4.1).
 
 **Transactional data.** Permit attestations do not carry transactional data in the sense of [Topic 20] of Annex 2 of the ARF.
 
-## 5 Trust anchors
+## 6 Trust anchors
 
 *Mechanisms for the provision of a trust anchor that SHALL
 be used for the verification of an attestation SHALL be defined in this section.*
@@ -273,7 +298,7 @@ Instance verifies the signature over this certificate, using the corresponding
 trust anchor from the QTSP Trusted List. Note that both the PuB-EAA Provider
 and the QTSP may use an intermediate signing certificate.
 
-## 6 Revocation
+## 7 Revocation
 
 (Refer to [Topic 7] of the ARF for a list of High-Level Requirements related to Revocation)
 
@@ -288,14 +313,14 @@ that will be specified by the Commission.
 - Use an Attestation Revocation List mechanism included in a Technical Specification
 that will be specified by the Commission.
 
-## 7 Compliance
+## 8 Compliance
 
 *In this section explicitly state how this specific rulebook complies with the
 general EUDI framework, ARF, and relevant regulations*
 
 [RULEBOOK AUTHOR TO DEFINE]
 
-## 8 References
+## 9 References
 
 | **Item Reference**                     | **Standard name/details**                                                                                                                                                                                                                                                                           |
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
