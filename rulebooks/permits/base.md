@@ -236,8 +236,6 @@ The following Private Names specific to the attestation type defined in this doc
 | attestation_legal_category | attestation_legal_category | string                      | Defined in [Section 3.5](#35-mandatory-metadata). Fixed value `"PuB-EAA"`                   | MUST NOT                    |
 | cryptographically_bound_to | cryptographically_bound_to | string                      | See [Section 3.5](#35-mandatory-metadata); default `urn:eudi:pid:1`, sub-type MAY override. | MUST NOT                    |
 
-Note: the standard JWT claims `nbf` and `exp` are used to express the technical validity period of an SD-JWT VC-compliant permit; see the envelope-claim mapping below.
-
 #### Envelope claims populated by Attestation Providers
 
 The following JWT and SD-JWT VC envelope claims SHALL be populated as indicated. These claims are not defined by this Rulebook; their syntax and semantics are governed by the cited specifications.
@@ -246,19 +244,53 @@ The following JWT and SD-JWT VC envelope claims SHALL be populated as indicated.
 | --------- | ----------- | -------------------------------------------------------------------------------------------- |
 | iss       | [RFC 7519]  | The Attestation Provider's identifier as registered in the QTSP Trusted List; see Chapter 6. |
 | iat       | [RFC 7519]  | Time of issuance.                                                                            |
-| nbf       | [RFC 7519]  | Set equal to `geldig_van` (administrative start of validity).                                |
-| exp       | [RFC 7519]  | Set equal to `geldig_tot` (administrative end of validity).                                  |
+| nbf       | [RFC 7519]  | NumericDate for 00:00:00 UTC on the date given by `geldig_van`.                              |
+| exp       | [RFC 7519]  | NumericDate for 00:00:00 UTC on the day immediately following `geldig_tot`.                  |
 | cnf       | [SD-JWT VC] | Public key of the device-bound key pair; see [Key binding (`cnf`)](#key-binding-cnf).        |
 | vct       | [SD-JWT VC] | The URN defined in [Verifiable Credential Type (`vct`)](#verifiable-credential-type-vct).    |
 
+Because `geldig_van` and `geldig_tot` are `full-date` values (no time component) while `nbf` and `exp` are NumericDate values (seconds since epoch, per [RFC 7519]), `exp` is set to the start of the day *after* `geldig_tot` so that the attestation remains valid throughout the entirety of the `geldig_tot` calendar day in UTC.
+
 #### Examples
 
-[RULEBOOK AUTHOR TO PROVIDE AN EXAMPLE OF THE JWT CLAIM SET USED BY THE PROVIDER]
+EXAMPLE: The following non-normative example shows the payload of a permit attestation in SD-JWT VC format before encoding into the SD-JWT format. It illustrates the `personal` profile (see [Chapter 2](#2-extension-model)): the attestation is device-bound (`cnf` present) and cross-credential-bound to the User's PID (`cryptographically_bound_to: "urn:eudi:pid:1"`). The concrete `vct` corresponds to a hypothetical `standplaats` sub-type extending the `personal` profile.
 
-[RULEBOOK AUTHOR TO PROVIDE AN EXAMPLE OF THE ISSUED SD-JWT (IN base64 ENCODING)]
+```json
+{
+    "iss": "https://permits.nijmegen.nl",
+    "iat": 1778495400,
+    "nbf": 1767225600,
+    "exp": 1798848000,
+    "vct": "urn:eudi:nl:vng:permit:personal:standplaats:v1",
 
-[RULEBOOK AUTHOR TO PROVIDE AN EXAMPLE OF A HUMAN READABLE VERSION OF THE SD-JWT PAYLOAD
-AND A DESCRIPTION OF THE DISCLOSURES INCLUDED IN THE EXAMPLE]
+    "upl_naam": "Standplaatsvergunning",
+    "product_naam": "Demo Standplaatsvergunning",
+    "product_type_code": "test-vierdaagse",
+    "kenmerk": "7f1aa4b5-3193-49d6-ba76-063e797f1e3f",
+    "geldig_van": "2026-01-01",
+    "geldig_tot": "2027-01-01",
+
+    "issuing_authority": "Gemeente Nijmegen",
+    "issuing_country": "NL",
+    "attestation_legal_category": "PuB-EAA",
+    "cryptographically_bound_to": "urn:eudi:pid:1",
+
+    "cnf": {
+        "jwk": {
+            "kty": "EC",
+            "crv": "P-256",
+            "x": "52aDI_ur05n1f_p3jiYGUU82oKZr3m4LsAErM536crQ",
+            "y": "ckhZ-KQ5aXNL91R8Eufg1aOf8Z5pZJnIvuCzNGfdnzo"
+        }
+    }
+}
+```
+
+Note: The `cnf` claim carries the public key of the device-bound key pair (see [Key binding (`cnf`)](#key-binding-cnf)); the example above shows a P-256 public key in JWK format.
+
+Note: `nbf` is the NumericDate for 00:00:00 UTC on `geldig_van` (2026-01-01); `exp` is the NumericDate for 00:00:00 UTC on the day after `geldig_tot` (2027-01-02), so that the attestation remains valid for the entirety of 2027-01-01 UTC.
+
+Note: Additional technical claims and JWS header fields are not shown here, including the `x5c` header conveying the location of the qualified certificate used to sign the PuB-EAA (see [Chapter 6](#6-trust-anchors)) and any status information (see [Chapter 7](#7-revocation)). The selective-disclosure digests (`_sd`, `_sd_alg`) and salts produced when claims marked **MUST** in [Section Private claims](#private-claims-defined-by-this-rulebook) are rendered selectively disclosable are likewise omitted; they appear in the encoded SD-JWT shown in the next example.
 
 ### 4.3 W3C Verifiable Credentials Data Model-based encoding
 
