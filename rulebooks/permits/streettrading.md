@@ -41,7 +41,7 @@ In addition to the mandatory attributes defined in [base.md §2.2](./base.md#22-
 
 | **Data Identifier** | **Definition**                                                                                         | **Data type** | **Example value**    |
 | ------------------- | ------------------------------------------------------------------------------------------------------ | ------------- | -------------------- |
-| locatie             | Address or designation of the physical location to which the permit applies.                          | string        | Plein 1944, Nijmegen |
+| locatie             | Address or designation of the physical location to which the permit applies.                           | string        | Plein 1944, Nijmegen |
 | type_locatie        | Classification of the location (e.g., `vaste standplaats`, `mobiele standplaats`, `binnen`, `buiten`). | string        | Vaste standplaats    |
 
 ### 2.3 Optional attributes
