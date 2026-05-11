@@ -22,29 +22,34 @@ This Rulebook defines the base attestation type for **permits** issued by Dutch 
 
 ### 1.2 Document structure
 
-- [1 Introduction](#1-introduction)
-  - [1.1 Document scope and purpose](#11-document-scope-and-purpose)
-  - [1.2 Document structure](#12-document-structure)
-  - [1.3 Key words](#13-key-words)
-  - [1.4 Terminology](#14-terminology)
-- [2 Attestation attributes and metadata](#2-attestation-attributes-and-metadata)
-  - [Chapter overview and requirements](#chapter-overview-and-requirements)
-  - [2.1 Introduction](#21-introduction)
-  - [2.2 Mandatory attributes](#22-mandatory-attributes)
-  - [2.3 Optional attributes](#23-optional-attributes)
-  - [2.4 Conditional attributes](#24-conditional-attributes)
-  - [2.5 Mandatory metadata](#25-mandatory-metadata)
-  - [2.6 Optional metadata](#26-optional-metadata)
-  - [2.7 Conditional metadata](#27-conditional-metadata)
-- [3 Attestation encoding](#3-attestation-encoding)
-  - [3.1 ISO/IEC 18013-5-compliant encoding](#31-isoiec-18013-5-compliant-encoding)
-  - [3.2 SD-JWT VC-based encoding](#32-sd-jwt-vc-based-encoding)
-  - [3.3 W3C Verifiable Credentials Data Model-based encoding](#33-w3c-verifiable-credentials-data-model-based-encoding)
-- [4 Attestation usage](#4-attestation-usage)
-- [5 Trust anchors](#5-trust-anchors)
-- [6 Revocation](#6-revocation)
-- [7 Compliance](#7-compliance)
-- [8 References](#8-references)
+- [Attestation Rulebook for attestations of type Permits](#attestation-rulebook-for-attestations-of-type-permits)
+  - [Versions](#versions)
+  - [1 Introduction](#1-introduction)
+    - [1.1 Document scope and purpose](#11-document-scope-and-purpose)
+    - [1.2 Document structure](#12-document-structure)
+    - [1.3 Key words](#13-key-words)
+    - [1.4 Terminology](#14-terminology)
+  - [2 Attestation attributes and metadata](#2-attestation-attributes-and-metadata)
+    - [Chapter overview and requirements](#chapter-overview-and-requirements)
+    - [2.1 Introduction](#21-introduction)
+    - [2.2 Mandatory attributes](#22-mandatory-attributes)
+    - [2.3 Optional attributes](#23-optional-attributes)
+    - [2.4 Conditional attributes](#24-conditional-attributes)
+    - [2.5 Mandatory metadata](#25-mandatory-metadata)
+    - [2.6 Optional metadata](#26-optional-metadata)
+    - [2.7 Conditional metadata](#27-conditional-metadata)
+  - [3 Attestation encoding](#3-attestation-encoding)
+    - [3.1 ISO/IEC 18013-5-compliant encoding](#31-isoiec-18013-5-compliant-encoding)
+    - [3.2 SD-JWT VC-based encoding](#32-sd-jwt-vc-based-encoding)
+      - [Verifiable Credential Type (`vct`)](#verifiable-credential-type-vct)
+      - [Type Metadata Document](#type-metadata-document)
+      - [Key binding (`cnf`)](#key-binding-cnf)
+    - [3.3 W3C Verifiable Credentials Data Model-based encoding](#33-w3c-verifiable-credentials-data-model-based-encoding)
+  - [4 Attestation usage](#4-attestation-usage)
+  - [5 Trust anchors](#5-trust-anchors)
+  - [6 Revocation](#6-revocation)
+  - [7 Compliance](#7-compliance)
+  - [8 References](#8-references)
 
 ### 1.3 Key words
 
@@ -139,35 +144,33 @@ Attestations of this type SHALL NOT be issued in the [ISO/IEC 18013-5] mdoc form
 
 ### 3.2 SD-JWT VC-based encoding
 
-*Attestations of this type SHALL be encoded as SD-JWT VC, complying with the 'SD-JWT VCs' profile specified in [HAIP] (see ARB_01b in [Topic 12]).*
+Attestations of this type SHALL be encoded as SD-JWT VC, complying with the 'SD-JWT VCs' profile specified in [HAIP] (see ARB_01b in [Topic 12]).
 
 #### Verifiable Credential Type (`vct`)
 
 The Verifiable Credential Type for permits defined by this Rulebook is the URN:
 
 ```text
-urn:eudi:nl:vng:permit:1
+urn:eudi:nl:vng:permit:v1
 ```
 
 This URN is unique within the EUDI Wallet ecosystem (ARB_05) and serves as the indication of the scheme of attestations required by Annex VII point (f) of the [European Digital Identity Regulation]. It identifies the attestation type/scheme defined by Vereniging van Nederlandse Gemeenten (VNG) as Scheme Provider; it does not identify the Attestation Provider that issued any particular credential of this type. Every Attestation Provider issuing permits of this type SHALL include this exact URN in the `vct` claim, regardless of the Provider's internal catalog or hosting infrastructure.
 
-The URN follows the structure `urn:eudi:<member-state>:<scheme-provider>:<type>:<version>`, identifying the attestation as part of the European Digital Identity Wallet ecosystem, scoped to the Netherlands (`nl`) and to VNG (`vng`) as Scheme Provider. This namespace does not overlap with the `urn:eudi:pid:` namespace reserved by PID_14 of the ARF.
-
 Attestation Rulebooks for specific permit types SHALL extend this base by appending a type segment before the version, e.g.:
 
 ```text
-urn:eudi:nl:vng:permit:streettrading:1
-urn:eudi:nl:vng:permit:evenementen:1
-urn:eudi:nl:vng:permit:standplaats:1
+urn:eudi:nl:vng:permit:streettrading:v1
+urn:eudi:nl:vng:permit:evenementen:v1
+urn:eudi:nl:vng:permit:standplaats:v1
 ```
 
-Sub-type Rulebooks SHALL inherit all mandatory attributes and metadata from this base Rulebook (`upl_naam`, `product_naam`, `product_type_code`, `kenmerk`, `geldig_van`, `geldig_tot`, `issuing_authority`, `issuing_country`, `attestation_legal_category`, `cryptographically_bound_to`) and MAY define additional type-specific attributes, using the `extends` mechanism specified in Chapter 6 of [SD-JWT VC]. Sub-type Rulebooks MAY evolve their version segment independently of the base version.
+Sub-type Rulebooks SHALL inherit all mandatory attributes and metadata from this base Rulebook and MAY define additional type-specific attributes, using the `extends` mechanism specified in Chapter 6 of [SD-JWT VC]. Sub-type Rulebooks MAY evolve their version segment independently of the base version.
 
-The major version `:1` covers all backwards-compatible additions to the schema (new optional claims, new optional metadata, clarifications). The version SHALL be incremented when a previously-mandatory attribute is removed, a claim's encoding or semantics change, a claim's selective-disclosability designation changes, or the cryptographic binding model changes.
+The major version `:v1` covers all backwards-compatible refinements to the schema. The version SHALL be incremented for any change that breaks this contract — that is, any change that could cause a previously-conforming credential to be rejected by an updated Verifier, or cause a conforming Verifier or Wallet to misinterpret a credential, lose a cryptographic guarantee, or fail to process it.
 
 #### Type Metadata Document
 
-Defining a Type Metadata Document as described in Chapter 6 of [SD-JWT VC] is OPTIONAL for this Rulebook (per ARB_31, which is a SHOULD-consider requirement). Attestation Providers MAY publish a Type Metadata Document for this `vct` at a URL of their choosing (for example, an internal catalog endpoint). Such documents are mirrors; the authoritative scheme definition is this Rulebook. If multiple Attestation Providers publish Type Metadata Documents for this `vct`, those documents SHALL describe a schema that is consistent with this Rulebook, and credentials MAY include a `vct#integrity` claim to enable verification of any retrieved Type Metadata Document.
+Defining a Type Metadata Document as described in Chapter 6 of [SD-JWT VC] is OPTIONAL for this Rulebook (per ARB_31, which is a SHOULD-consider requirement). Because the `vct` defined in this Rulebook is a URN, it is not dereferenceable and no metadata-discovery endpoint is provided; the authoritative scheme definition is this Rulebook. Attestation Providers MAY include a `vct#integrity` claim in issued credentials, computed as a Subresource Integrity hash over a Type Metadata Document consistent with this Rulebook. The mechanism by which a Verifier obtains that document is out of scope for this Rulebook.
 
 #### Key binding (`cnf`)
 
