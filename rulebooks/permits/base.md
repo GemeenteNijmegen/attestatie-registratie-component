@@ -74,23 +74,33 @@ This document uses the terminology specified in Annex 1 of the ARF.
 
 ## 2 Extension model
 
-This Rulebook sits at the root of a three-tier hierarchy:
+This Rulebook (the **base**) is extended by **sub-type Rulebooks**, one per permit category — for example *standplaatsvergunning*, *evenementenvergunning*, *parkeervergunning*. There is no intermediate layer.
 
-1. **Base** (this Rulebook) — requirements common to every permit.
-2. **Profile** Rulebooks — fix the binding-related knobs for a class of permits. A sub-type Rulebook SHALL extend exactly one of the profiles defined below.
-3. **Sub-type** Rulebooks — define individual permit categories (e.g. *standplaatsvergunning*, *evenementenvergunning*) by extending exactly one profile.
+A sub-type Rulebook:
 
-A sub-type Rulebook inherits every requirement of the base Rulebook and of its chosen profile unchanged, MAY add type-specific attributes following the claim-naming policy in [Section 4.2](#42-sd-jwt-vc-based-encoding), and MAY tighten an inherited requirement (e.g. raise OPTIONAL to MANDATORY), but SHALL NOT loosen one. Claim semantics, the base `vct` URN structure, and the fixed value `"PuB-EAA"` of `attestation_legal_category` SHALL NOT be changed. A sub-type Rulebook SHALL NOT redefine the binding knobs at the sub-type level; if no profile fits, the Scheme Provider SHALL define an additional profile rather than overriding at the sub-type. The selected profile name SHALL appear as a segment of the sub-type's `vct` URN, for example `urn:eudi:nl:vng:permit:personal:streettrading:v1`.
+- SHALL inherit every requirement of this base unchanged;
+- MAY add type-specific attributes following the claim-naming policy in [Section 4.2](#42-sd-jwt-vc-based-encoding);
+- MAY tighten an inherited requirement (e.g. raise OPTIONAL to MANDATORY) but SHALL NOT loosen one;
+- SHALL NOT change claim semantics, the base `vct` URN structure, or the fixed value `"PuB-EAA"` of `attestation_legal_category`;
+- SHALL declare to whom or what the permit is cryptographically bound, by setting the `cryptographically_bound_to` metadata field defined in [Section 3.5](#35-mandatory-metadata) (or by omitting it for transferable bearer permits — see below).
 
-| Profile         | Device binding (`cnf`)   | Cross-cred binding   | Anchor `vct`                                                                                                                                                                    | Typical use cases                                                                                                                                                                                                                                                                                                            |
-|-----------------|--------------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `personal`      | yes                      | yes                  | `urn:eudi:pid:1`                                                                                                                                                                | Permits issued to a natural person (parkeervergunning, standplaatsvergunning, particuliere evenementenvergunning, hondenuitlaatvergunning, …).                                                                                                                                                                               |
-| `business`      | yes                      | yes                  | Chamber of Commerce registration attestation (`vct` per the KvK Rulebook)                                                                                                       | Permits issued to a legal entity (horecavergunning, terrasvergunning, drank- en horecavergunning, exploitatievergunning, omgevingsvergunning voor bouw door aannemer, …).                                                                                                                                                    |
-| `object`        | yes                      | yes                  | Object-registry attestation (e.g. `urn:eudi:rdw:1` for vehicles, future Kadaster `vct` for properties); the specific anchor `vct` is fixed by the extending sub-type Rulebook   | Permits attached to a real-world object rather than to a person (milieuzone-ontheffing op kenteken, parkeerontheffing op kenteken, omgevingsvergunning gekoppeld aan perceel, …).                                                                                                                                            |
-| `device-only`   | yes                      | no                   | (n/a)                                                                                                                                                                           | Device-bound permits where holder identity is conveyed by attributes inside the permit itself or by claim-based binding at presentation time. Uncommon.                                                                                                                                                                      |
-| `bearer`        | no                       | no                   | (n/a)                                                                                                                                                                           | Transferable / bearer-like permits where uncloneability is not a requirement (bezoekersparkeerkaart, evenementenpas voor een groep, day-passes). The sub-type SHALL conform to ISSU_66 of [Topic Z] for refresh-token re-issuance and SHALL document the residual risk that the attestation can be copied between devices.   |
+The sub-type's `vct` URN extends the base by appending a type segment before the version, for example `urn:eudi:nl:vng:permit:streettrading:v1`.
 
-The combination *device binding = no, cross-credential binding = yes* is invalid: cross-credential cryptographic binding is built on top of device binding via ACP_05 of [Topic 18] and cannot exist without it. No profile is defined for this combination.
+### Cryptographic binding
+
+The single decision a sub-type makes that is not already fixed by the base is **what credential, if any, the permit is bound to**. Two cases cover virtually every permit issued by a Dutch public body; a third covers transferable permits:
+
+| Subject of the permit                           | `cryptographically_bound_to`                                                                              | Typical permits                                                                                                       |
+|-------------------------------------------------|-----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| A natural person                                | the User's PID, of the form `urn:eudi:pid:<cc>:1` (e.g. `urn:eudi:pid:nl:1`)                              | parkeervergunning, standplaatsvergunning, particuliere evenementenvergunning, hondenuitlaatvergunning, …              |
+| A legal entity                                  | a KvK registration attestation (or the EUDI LPID attestation, once its Rulebook is published)             | horecavergunning, drank- en horecavergunning, exploitatievergunning, omgevingsvergunning voor bouw door aannemer, …   |
+| Nobody specific (transferable / bearer permit)  | *omitted* — and `cnf` SHALL also be omitted (see note below)                                              | bezoekersparkeerkaart, evenementenpas voor een groep, day-passes                                                      |
+
+A sub-type MAY anchor a permit to a credential other than a PID or KvK/LPID attestation when the subject of the permit is neither a natural person nor a legal entity — for example an RDW vehicle-keeper attestation for a permit tied to a specific vehicle by license plate. In that case the sub-type SHALL document how the chosen anchor identifies the entity to which the permit's attributes refer (ARB_16 / Annex VII point (c)).
+
+**Bearer permits and ARB_16.** Bearer permits represent no specific natural or legal person; only the transferable token itself. A sub-type that waives cryptographic binding (omitting both `cryptographically_bound_to` and `cnf`, with the consequence that the SD-JWT VC can be copied between devices) SHALL document this Annex VII point (c) carve-out, SHALL conform to ISSU_66 of [Topic Z] for refresh-token re-issuance, and SHALL document the residual cloning risk.
+
+**Single-anchor scope.** The `cryptographically_bound_to` field carries a single concrete `vct` per issued attestation. Multi-anchor permits (e.g. simultaneously bound to a PID and a vehicle attestation) are out of scope for this version of the Rulebook.
 
 ## 3 Attestation attributes and metadata
 
@@ -119,7 +129,7 @@ Sub-type Rulebooks MAY add type-specific attributes and metadata, but SHALL inhe
 
 According to Annex VII point (a) of the [European Digital Identity Regulation], an indication, at least in a form suitable for automated processing, that the attestation has been issued as a PuB-EAA must be defined. This Rulebook satisfies that requirement through the `attestation_legal_category` metadata field, which for permits is always `"PuB-EAA"`.
 
-The set of data unambiguously representing the entity to which the attested attributes refer, as required by Annex VII point (c) of the [European Digital Identity Regulation], is not duplicated as subject attributes inside the permit. Instead, by default, the permit attestation SHALL be cryptographically bound during issuance, in accordance with ACP_05 and ACP_07 of [Topic 18], to the User's PID (`vct = urn:eudi:pid:1`) on the same Wallet Unit. The identity of the entity to whom the permit was granted is therefore conveyed by the bound anchor credential at presentation time. This approach complies with the data-minimisation principle: a Relying Party only learns the anchor credential's attributes when those are explicitly requested.
+The set of data unambiguously representing the entity to which the attested attributes refer, as required by Annex VII point (c) of the [European Digital Identity Regulation], is not duplicated as subject attributes inside the permit. Instead, by default, the permit attestation SHALL be cryptographically bound during issuance, in accordance with ACP_05 and ACP_07 of [Topic 18], to the User's PID (`vct` of the form `urn:eudi:pid:<cc>:1`, e.g. `urn:eudi:pid:nl:1`) on the same Wallet Unit. The identity of the entity to whom the permit was granted is therefore conveyed by the bound anchor credential at presentation time. This approach complies with the data-minimisation principle: a Relying Party only learns the anchor credential's attributes when those are explicitly requested.
 
 A sub-type Rulebook extending this base MAY override the anchor credential type — for example to a Chamber of Commerce registration attestation for business-related permits, or to an RDW vehicle-keeper attestation for vehicle-related permits — or MAY waive cross-credential binding entirely. The override mechanism is specified in [Section 4.2](#42-sd-jwt-vc-based-encoding) (for the underlying device-binding requirement) and [Chapter 5](#5-attestation-usage) (for the cross-credential binding requirement). The metadata field `cryptographically_bound_to`, specified in [Section 3.5](#35-mandatory-metadata) below, advertises the selected binding to Relying Parties.
 
@@ -138,7 +148,7 @@ Sections 2.2 - 2.7 list each attribute and metadata field with its data identifi
 | geldig_van          | Start date of validity for this permit.                                                   | full-date     | 2026-01-01                           |
 | geldig_tot          | End date of validity for this permit.                                                     | full-date     | 2027-01-01                           |
 
-*Open profile-level decision (see [Chapter 2](#2-extension-model)): this Rulebook does not currently impose a maximum validity duration on a permit (no upper bound on `geldig_tot − geldig_van`). The Scheme Provider may, in a future version of this Rulebook, promote a max-validity cap to a profile-level decision — for example ≤ 24h for `bearer`, ≤ 1 year for `vehicle`, ≤ 5 years for permits issued under firearms or hazardous-materials legislation — to prevent abuse of overly long-lived permits.*
+*Open question for the Scheme Provider: this Rulebook does not currently impose a maximum validity duration on a permit (no upper bound on `geldig_tot − geldig_van`). A future version may introduce a base-level cap or category-specific caps — for example ≤ 24h for bearer permits, ≤ 1 year for vehicle-related permits, ≤ 5 years for permits issued under firearms or hazardous-materials legislation — to prevent abuse of overly long-lived permits.*
 
 ### 3.3 Optional attributes
 
@@ -155,9 +165,9 @@ Not specified.
 | issuing_authority          | Name of the administrative authority that issued the permit.                                                                                                                                                                                                                                                               | string        | Gemeente Nijmegen |
 | issuing_country            | Alpha-2 country code (ISO 3166-1) of the country of the issuing authority.                                                                                                                                                                                                                                                 | string        | NL                |
 | attestation_legal_category | Legal category under which the attestation is issued. For permits this value is always `"PuB-EAA"`.                                                                                                                                                                                                                        | string        | PuB-EAA           |
-| cryptographically_bound_to | Identifier (`vct`) of the anchor credential bound to this attestation via the shared WSCA/WSCD per ACP_05 of [Topic 18]. Default `urn:eudi:pid:1`. See note below and Chapter 5.                                                                                                                                           | string (vct)  | urn:eudi:pid:1    |
+| cryptographically_bound_to | Identifier (`vct`) of the anchor credential bound to this attestation via the shared WSCA/WSCD per ACP_05 of [Topic 18]. Default: the User's PID, of the form `urn:eudi:pid:<cc>:1`. See note below and Chapter 5.                                                                                                         | string (vct)  | urn:eudi:pid:nl:1 |
 
-Note on `cryptographically_bound_to`. The default anchor for permit attestations defined by this base Rulebook is the User's PID (`urn:eudi:pid:1`). A sub-type Rulebook extending this base MAY specify a different anchor credential type whose `vct` reflects the entity to which the permit's attributes refer — for example a Chamber of Commerce registration attestation for business-related permits, or an RDW vehicle-keeper attestation for vehicle-related permits. A sub-type Rulebook MAY also waive cross-credential binding entirely (consistent with waiving device binding per Section 4.2), in which case the `cryptographically_bound_to` field SHALL be omitted from issued attestations. A sub-type Rulebook silent on this point inherits the default. The selected anchor credential SHALL itself be a device-bound PID or attestation issued to the same Wallet Unit, so that the WSCA/WSCD-shared-key proof of ACP_05 can be obtained.
+Note on `cryptographically_bound_to`. The default anchor for permit attestations defined by this base Rulebook is the User's PID, whose `vct` is of the form `urn:eudi:pid:<cc>:1` (e.g. `urn:eudi:pid:nl:1`). A sub-type Rulebook extending this base MAY specify a different anchor credential type whose `vct` reflects the entity to which the permit's attributes refer — for example a Chamber of Commerce registration attestation for business-related permits, or an RDW vehicle-keeper attestation for vehicle-related permits. A sub-type Rulebook MAY also waive cross-credential binding entirely (consistent with waiving device binding per Section 4.2), in which case the `cryptographically_bound_to` field SHALL be omitted from issued attestations. A sub-type Rulebook silent on this point inherits the default. The selected anchor credential SHALL itself be a device-bound PID or attestation issued to the same Wallet Unit, so that the WSCA/WSCD-shared-key proof of ACP_05 can be obtained.
 
 ### 3.6 Optional metadata
 
@@ -234,7 +244,7 @@ The following Private Names specific to the attestation type defined in this doc
 | issuing_authority          | issuing_authority          | string                      | Defined in [Section 3.5](#35-mandatory-metadata)                                            | MUST NOT                    |
 | issuing_country            | issuing_country            | string (ISO 3166-1 alpha-2) | Defined in [Section 3.5](#35-mandatory-metadata)                                            | MUST NOT                    |
 | attestation_legal_category | attestation_legal_category | string                      | Defined in [Section 3.5](#35-mandatory-metadata). Fixed value `"PuB-EAA"`                   | MUST NOT                    |
-| cryptographically_bound_to | cryptographically_bound_to | string                      | See [Section 3.5](#35-mandatory-metadata); default `urn:eudi:pid:1`, sub-type MAY override. | MUST NOT                    |
+| cryptographically_bound_to | cryptographically_bound_to | string                      | See [Section 3.5](#35-mandatory-metadata); default `urn:eudi:pid:<cc>:1`. Sub-type MAY override.| MUST NOT                    |
 
 #### Envelope claims populated by Attestation Providers
 
@@ -253,7 +263,7 @@ Because `geldig_van` and `geldig_tot` are `full-date` values (no time component)
 
 #### Examples
 
-EXAMPLE: The following non-normative example shows the payload of a permit attestation in SD-JWT VC format before encoding into the SD-JWT format. It illustrates the `personal` profile (see [Chapter 2](#2-extension-model)): the attestation is device-bound (`cnf` present) and cross-credential-bound to the User's PID (`cryptographically_bound_to: "urn:eudi:pid:1"`). The concrete `vct` corresponds to a hypothetical `standplaats` sub-type extending the `personal` profile.
+EXAMPLE: The following non-normative example shows the payload of a permit attestation in SD-JWT VC format before encoding into the SD-JWT format. It illustrates the default binding pattern described in [Chapter 2](#2-extension-model): the attestation is device-bound (`cnf` present) and cross-credential-bound to the User's PID (`cryptographically_bound_to: "urn:eudi:pid:nl:1"`). The concrete `vct` corresponds to a hypothetical `standplaats` sub-type extending the base.
 
 ```json
 {
@@ -261,7 +271,7 @@ EXAMPLE: The following non-normative example shows the payload of a permit attes
     "iat": 1778495400,
     "nbf": 1767225600,
     "exp": 1798848000,
-    "vct": "urn:eudi:nl:vng:permit:personal:standplaats:v1",
+    "vct": "urn:eudi:nl:vng:permit:standplaats:v1",
 
     "upl_naam": "Standplaatsvergunning",
     "product_naam": "Demo Standplaatsvergunning",
@@ -273,7 +283,7 @@ EXAMPLE: The following non-normative example shows the payload of a permit attes
     "issuing_authority": "Gemeente Nijmegen",
     "issuing_country": "NL",
     "attestation_legal_category": "PuB-EAA",
-    "cryptographically_bound_to": "urn:eudi:pid:1",
+    "cryptographically_bound_to": "urn:eudi:pid:nl:1",
 
     "cnf": {
         "jwk": {
@@ -302,7 +312,7 @@ A permit attestation is presented online by a Wallet Unit to a Relying Party (fo
 
 **Device binding (ARB_34).** By default, permit attestations SHALL be device-bound. The SD-JWT VC SHALL contain a `cnf` claim carrying the public key of a key pair generated by the Wallet Unit's WSCA/WSCD; see Section 4.2. Device binding, taken on its own, only prevents the attestation from being transferred to another device — it does not, by itself, link the attestation to any other credential or to a natural or legal person. A sub-type Rulebook MAY waive device binding subject to the conditions in [Section 4.2](#42-sd-jwt-vc-based-encoding); a sub-type that waives device binding necessarily also waives the cross-credential binding specified below.
 
-**Cross-credential cryptographic binding (ARB_28, Topic 18).** By default, permit attestations SHALL be cryptographically bound, during issuance, to the User's PID with `vct = "urn:eudi:pid:1"` on the same Wallet Unit. A sub-type Rulebook extending this base MAY:
+**Cross-credential cryptographic binding (ARB_28, Topic 18).** By default, permit attestations SHALL be cryptographically bound, during issuance, to the User's PID — whose `vct` is of the form `urn:eudi:pid:<cc>:1` (e.g. `urn:eudi:pid:nl:1`) — on the same Wallet Unit. A sub-type Rulebook extending this base MAY:
 
 - specify a different anchor credential — for example a Chamber of Commerce registration attestation for a business-related permit, or an RDW vehicle-keeper attestation for a vehicle-related permit — by overriding the value of `cryptographically_bound_to` with the `vct` of that anchor; or
 - waive cross-credential binding entirely, in which case the `cryptographically_bound_to` field SHALL be omitted from issued attestations. A sub-type Rulebook silent on this point inherits the default (PID-anchored binding).
@@ -329,7 +339,7 @@ Whenever the Relying Party needs to identify the entity to whom the permit was g
 
 **Re-issuance.** Re-issuance of permits is currently governed only by the inherited High-Level Requirements ISSU_65 (for device-bound attestations, refresh tokens SHALL be bound to the same WSCA/WSCD as the replaced attestation) and ISSU_66 of [Topic Z] (for non-device-bound attestations, refresh tokens SHALL still be bound to a WSCA/WSCD on the same Wallet Unit). This Rulebook does not pin a maximum refresh cadence, nor whether re-authentication of the anchor credential is required on each refresh.
 
-*Open profile-level decision (see [Chapter 2](#2-extension-model)): the Scheme Provider may, in a future version of this Rulebook, promote refresh cadence and anchor re-authentication policy to a profile-level decision — for example a `bearer` profile might require re-issuance every 24h with re-authentication, while a `personal` profile might allow silent refresh against an unchanged WSCA/WSCD-bound PID for the lifetime of the permit.*
+*Open question for the Scheme Provider: a future version of this Rulebook may pin refresh cadence and anchor re-authentication policy — for example, bearer permits might be required to be re-issued every 24h with re-authentication, while PID-bound permits might allow silent refresh against an unchanged WSCA/WSCD-bound PID for the lifetime of the permit.*
 
 ## 6 Trust anchors
 
@@ -360,7 +370,7 @@ that will be specified by the Commission.
 - Use an Attestation Revocation List mechanism included in a Technical Specification
 that will be specified by the Commission.
 
-*Open profile-level decision (see [Chapter 2](#2-extension-model)): the revocation mechanism is currently inherited rulebook-wide. The Scheme Provider may, in a future version of this Rulebook, promote the choice between short-lived (≤ 24h), Attestation Status List, and Attestation Revocation List to a profile-level decision, so that different permit classes (for example `bearer` day-passes versus `business` operating permits) can use different mechanisms without each sub-type having to declare its own choice independently.*
+*Open question for the Scheme Provider: the revocation mechanism is currently inherited rulebook-wide. A future version of this Rulebook may pin different mechanisms for different permit classes — short-lived (≤ 24h), Attestation Status List, or Attestation Revocation List — so that, for example, bearer day-passes and long-lived business operating permits do not have to use the same mechanism.*
 
 ## 8 Compliance
 
