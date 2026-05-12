@@ -198,6 +198,8 @@ async function main() {
           id: p.uuid,
           naam: p.naam,
           type: p.producttype.uniforme_product_naam,
+          dataobject: p.dataobject,
+          eigenaren: p.eigenaren,
         }));
       }
 

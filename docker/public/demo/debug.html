@@ -235,6 +235,35 @@
       color: #d1fae5;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
     }
+
+    .instance-details {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(56, 189, 248, 0.05);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .instance-details h4 {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .detail-item {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-label {
+      color: var(--text-muted);
+      font-weight: 500;
+      min-width: 80px;
+    }
   </style>
 </head>
 
@@ -301,7 +330,7 @@
         const container = document.getElementById('overview-container');
 
         if (data.length === 0) {
-          container.innerHTML = '<div class="empty-msg">No products found.</div>';
+          container.innerHTML = '<div class="empty-msg">No products instances found.</div>';
           return;
         }
 
@@ -310,9 +339,23 @@
             <div class="product-header">
               <div class="product-info">
                 <h2>${p.naam}</h2>
-                <div class="id">Product UUID: ${p.id}</div>
+                <div class="id">Product instance UUID: ${p.id}</div>
               </div>
               <span class="badge badge-type">${p.type}</span>
+            </div>
+
+            <div class="instance-details">
+              <h4>Instance Details</h4>
+              <div class="detail-item">
+                <span class="detail-label">Owner:</span>
+                <span>${p.eigenaren && p.eigenaren[0] ? `BSN ${p.eigenaren[0].bsn}` : 'Unknown'}</span>
+              </div>
+              ${p.dataobject ? Object.entries(p.dataobject).map(([k, v]) => `
+                <div class="detail-item">
+                  <span class="detail-label">${k.charAt(0).toUpperCase() + k.slice(1)}:</span>
+                  <span>${v}</span>
+                </div>
+              `).join('') : ''}
             </div>
             
             <div class="status-grid">
