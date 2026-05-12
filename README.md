@@ -31,39 +31,7 @@ Rechtsgeldigheid is de bestaansreden van ARC: zonder dat een credential aantoonb
 
 ## Architectuur op hoofdlijnen
 
-```text
-   ┌─────────────────────────────────────────────────────────────────────────────┐
-   │                         ARC RULEBOOK REGISTRY                               │
-   │                                                                             │
-   │   rulebooks/pid/        ───────  urn:eudi:pid:nl:1                          │
-   │   rulebooks/permits/    ───────  urn:eudi:nl:vng:permit[:sub-type]:v1       │
-   │                                                                             │
-   └─────────────────────────────────────┬───────────────────────────────────────┘
-                                         │ definieert vct, claims, binding,
-                                         │ encoding, trust anchors, revocation
-                                         ▼
-   ┌──────────────┐   ┌──────────────┐   ┌─────────────────────────────┐   ┌──────────────────┐
-   │  Authentic   │   │   Source     │   │            ARC              │   │     Provider     │
-   │   Source     │──▶│   adapter    │──▶│   ┌────────────────────┐    │──▶│  (QTSP-signed)   │
-   │              │   │              │   │   │   Attestation      │    │   │                  │
-   │ Mijn Product │   │ OpenProduct  │   │   │   (mapping per     │    │   │      Ver.iD      │
-   │     BRP      │   │     …        │   │   │    rulebook-vct)   │    │   │       …          │
-   │     KvK      │   │              │   │   └────────────────────┘    │   │                  │
-   │     RDW      │   │              │   │   ┌────────────────────┐    │   └────────┬─────────┘
-   │   Kadaster   │   │              │   │   │ Store (sessions)   │    │            │ SD-JWT VC
-   └──────────────┘   └──────────────┘   │   └────────────────────┘    │            │ + key binding
-                                         └─────────────────────────────┘            ▼
-                                                              ┌────────────────────────────────┐
-                                                              │          Wallet Unit           │
-                                                              │       (EUDI-wallet, WSCD)      │
-                                                              └────────────────┬───────────────┘
-                                                                               │  OpenID4VP / HAIP
-                                                                               ▼
-                                                              ┌────────────────────────────────┐
-                                                              │         Relying Party          │
-                                                              │   handhaver · evenement · …    │
-                                                              └────────────────────────────────┘
-```
+![Architectuur](./docs/general-architecture.png)
 
 De technische uitwerking van de vier lagen (`Source`, `Attestation`, `Provider`, `Store`) staat in [docs/architectuur.md](docs/architectuur.md). De koppeling aan uw eigen applicatie staat in [docs/integratie.md](docs/integratie.md).
 
@@ -84,16 +52,16 @@ Dit voorbeeld bevat een complete setup met een Express API en PostgreSQL databas
 
 ## Documentatie
 
-| Onderwerp | Document |
-| --- | --- |
-| Rechtsgeldigheid onder eIDAS 2.0 en het ARF | [docs/rechtsgeldigheid.md](docs/rechtsgeldigheid.md) |
-| Architectuur en kernabstracties | [docs/architectuur.md](docs/architectuur.md) |
-| ARC integreren in uw applicatie | [docs/integratie.md](docs/integratie.md) |
-| Een rulebook schrijven | [docs/adding-a-rulebook.md](docs/adding-a-rulebook.md) |
-| Een attestatie toevoegen (mapping) | [docs/adding-an-attestation.md](docs/adding-an-attestation.md) |
-| Een provider toevoegen | [docs/adding-a-provider.md](docs/adding-a-provider.md) |
-| Een bron toevoegen | [docs/adding-a-source.md](docs/adding-a-source.md) |
-| Bestaande rulebooks | [rulebooks/](rulebooks/) |
+| Onderwerp                                   | Document                                                       |
+|---------------------------------------------|----------------------------------------------------------------|
+| Rechtsgeldigheid onder eIDAS 2.0 en het ARF | [docs/rechtsgeldigheid.md](docs/rechtsgeldigheid.md)           |
+| Architectuur en kernabstracties             | [docs/architectuur.md](docs/architectuur.md)                   |
+| ARC integreren in uw applicatie             | [docs/integratie.md](docs/integratie.md)                       |
+| Een rulebook schrijven                      | [docs/adding-a-rulebook.md](docs/adding-a-rulebook.md)         |
+| Een attestatie toevoegen (mapping)          | [docs/adding-an-attestation.md](docs/adding-an-attestation.md) |
+| Een provider toevoegen                      | [docs/adding-a-provider.md](docs/adding-a-provider.md)         |
+| Een bron toevoegen                          | [docs/adding-a-source.md](docs/adding-a-source.md)             |
+| Bestaande rulebooks                         | [rulebooks/](rulebooks/)                                       |
 
 ## Status
 
