@@ -6,6 +6,9 @@
   </picture>
 </p>
 
+> [!WARNING]
+> **In ontwikkeling** · ARC en de rulebooks in deze repository zijn pre-release. De rulebooks hebben de status *Draft*, en API's, configuratie en gedrag kunnen tussen releases wijzigen. Nog niet inzetten voor productie zonder afstemming met de auteurs.
+
 # Attestatie Registratie Component (ARC)
 
 **Gedeelde registry van Attestation Rulebooks voor rechtsgeldige PuB-EAAs van Nederlandse gemeenten, met een herbruikbare implementatie die deze rulebooks uitgeeft. Een initiatief van [Gemeente Nijmegen](https://www.nijmegen.nl/) in samenwerking met [Ver.iD](https://ver.id/) binnen [Common Ground](https://commonground.nl).**
@@ -24,19 +27,7 @@ ARC borgt dat deze community één gedeelde, gereviewde set rulebooks heeft die 
 
 ## Rechtsgeldigheid
 
-Onder artikel 45f van [eIDAS 2.0](https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:L_202401183) heeft een PuB-EAA dezelfde rechtsgevolgen als een papieren attestatie. Die status berust op een samenhangend stelsel dat het [ARF](https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework) technisch uitwerkt:
-
-- **Authentieke bron** (§3.10): een bij wet erkende registratie zoals BRP, KvK, RDW, Kadaster of een gemeentelijke productregistratie. Zonder authentieke bron geen PuB-EAA.
-- **Attestation Provider** (§3.7): publiekrechtelijke instantie of haar gemachtigde, ondertekent met een door een QTSP afgegeven gekwalificeerd certificaat, geregistreerd bij een nationale Registrar (§3.17) en onder toezicht van Supervisory Bodies (§3.13).
-- **Compliance- en trust-framework**: Annex VII (data-elementen) en Topic 12 van het ARF (ARB_01 t/m ARB_34) als technische vertaling; vertrouwen verankerd via de [LOTL](https://digital-strategy.ec.europa.eu/en/policies/eu-trusted-lists) met QTSP-trust anchors, Wallet Provider-LoTEs en Provider-registraties per lidstaat.
-- **Rulebook**: legt voor één attestatietype vast welk formaat (SD-JWT VC), `vct`, claims, trust anchors, revocation-mechanisme en presentatieprotocol gelden, met een sluitende compliance-matrix tegen Annex VII en Topic 12. Niet conform = geen PuB-EAA.
-
-Twee processen dragen het kader in de praktijk:
-
-- **Uitgifte** (§6.6.2): keten van vertrouwensrelaties tussen wallet, Provider en Wallet Provider (Trusted Lists, gebruikersauthenticatie, Wallet Instance en Wallet Unit Attestations); de Provider bezegelt met het gekwalificeerd zegel. De binding aan de rechthebbende uit de authentieke bron wordt per type in de rulebook gespecificeerd.
-- **Verificatie** (§6.6.3): verplicht is het gekwalificeerd zegel + certificate-chain tegen de QTSP Trusted List. Aanvullend, afhankelijk van rulebook en gebruikssituatie: revocation-status, device binding (`cnf` bij SD-JWT VC), cross-credential binding, administratieve geldigheid en User binding.
-
-Procedures per attestatietype staan in Hoofdstuk 2 (uitgifte) en Hoofdstuk 5 (verificatie) van de rulebook.
+Rechtsgeldigheid is de bestaansreden van ARC: zonder dat een credential aantoonbaar voldoet aan de eisen die eIDAS 2.0 en het ARF stellen, heeft het geen juridische status. Het volledige stelsel van bronnen, rollen, technische eisen en vertrouwensinfrastructuur waarop de rechtsgevolgen van een PuB-EAA berusten, staat in [docs/rechtsgeldigheid.md](docs/rechtsgeldigheid.md).
 
 ## Architectuur op hoofdlijnen
 
@@ -89,6 +80,7 @@ Beide stappen landen in dezelfde pull request, zodat de rulebook en de implement
 
 | Onderwerp | Document |
 | --- | --- |
+| Rechtsgeldigheid onder eIDAS 2.0 en het ARF | [docs/rechtsgeldigheid.md](docs/rechtsgeldigheid.md) |
 | Architectuur en kernabstracties | [docs/architectuur.md](docs/architectuur.md) |
 | ARC integreren in uw applicatie | [docs/integratie.md](docs/integratie.md) |
 | Een rulebook schrijven | [docs/adding-a-rulebook.md](docs/adding-a-rulebook.md) |
