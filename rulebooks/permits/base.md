@@ -1,7 +1,7 @@
 # Attestation Rulebook for attestations of type Permits
 
 | Field    | Value                                                                                                                                 |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+|----------|---------------------------------------------------------------------------------------------------------------------------------------|
 | Status   | Draft                                                                                                                                 |
 | Created  | 2026-05-11                                                                                                                            |
 | Updated  | 2026-05-11                                                                                                                            |
@@ -11,7 +11,7 @@
 ## Versions
 
 | Version | Date       | Description                                                                                                                         |
-| ------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+|---------|------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | 1.0     | 2026-05-11 | First version of the Permits base Attestation Rulebook. Defines a generic, UPL-classified PuB-EAA permit type encoded as SD-JWT VC. |
 
 ## 1 Introduction
@@ -109,10 +109,10 @@ This Rulebook adopts **disclosure-based issuance** as the default issuance proce
 
 The resulting operational mapping is:
 
-| Owner as recorded                     | Owner credential disclosed at issuance                                            | `cryptographically_bound_to` set to                  | Typical permits                                                                                                       |
-| ------------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| BSN (natural person)                  | the User's PID                                                                    | `urn:eudi:pid:<cc>:1` (e.g. `urn:eudi:pid:nl:1`)     | parkeervergunning, standplaatsvergunning, particuliere evenementenvergunning, hondenuitlaatvergunning, …              |
-| KvK number (legal entity)             | a KvK registration attestation (or the EUDI LPID attestation, once published)     | the `vct` of the disclosed KvK / LPID attestation    | horecavergunning, drank- en horecavergunning, exploitatievergunning, omgevingsvergunning voor bouw door aannemer, …   |
+| Owner as recorded         | Owner credential disclosed at issuance                                        | `cryptographically_bound_to` set to               | Typical permits                                                                                                     |
+|---------------------------|-------------------------------------------------------------------------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| BSN (natural person)      | the User's PID                                                                | `urn:eudi:pid:<cc>:1` (e.g. `urn:eudi:pid:nl:1`)  | parkeervergunning, standplaatsvergunning, particuliere evenementenvergunning, hondenuitlaatvergunning, …            |
+| KvK number (legal entity) | a KvK registration attestation (or the EUDI LPID attestation, once published) | the `vct` of the disclosed KvK / LPID attestation | horecavergunning, drank- en horecavergunning, exploitatievergunning, omgevingsvergunning voor bouw door aannemer, … |
 
 A product with multiple owners is supported trivially: each owner who applies discloses their own owner credential, and the Attestation Provider issues a separate permit bound to that owner's anchor. This Rulebook neither requires nor prohibits the Attestation Provider issuing concurrent permits to multiple owners of the same product; that policy is left to the granting authority.
 
@@ -162,7 +162,7 @@ Sections 3.2 - 3.7 list each attribute and metadata field with its data identifi
 ### 3.2 Mandatory attributes
 
 | **Data Identifier** | **Definition**                                                                            | **Data type** | **Example value**                    |
-| ------------------- | ----------------------------------------------------------------------------------------- | ------------- | ------------------------------------ |
+|---------------------|-------------------------------------------------------------------------------------------|---------------|--------------------------------------|
 | upl_naam            | Standardized product name as defined in the Dutch Uniforme Productnamenlijst (UPL).       | string        | Standplaatsvergunning                |
 | product_naam        | Human-readable name of the specific permit as issued by the granting authority.           | string        | Demo Standplaatsvergunning           |
 | product_type_code   | Code identifying the product/permit type.                                                 | string        | test-vierdaagse                      |
@@ -182,12 +182,12 @@ Not specified.
 
 ### 3.5 Mandatory metadata
 
-| **Data Identifier**        | **Definition**                                                                                                                                                                                                                                                                                                             | **Data type** | **Example value** |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------- |
-| issuing_authority          | Name of the administrative authority that issued the permit.                                                                                                                                                                                                                                                               | string        | Gemeente Nijmegen |
-| issuing_country            | Alpha-2 country code (ISO 3166-1) of the country of the issuing authority.                                                                                                                                                                                                                                                 | string        | NL                |
-| attestation_legal_category | Legal category under which the attestation is issued. For permits this value is always `"PuB-EAA"`.                                                                                                                                                                                                                        | string        | PuB-EAA           |
-| cryptographically_bound_to | Identifier (`vct`) of the anchor credential bound to this attestation via the shared WSCA/WSCD. See note below and Chapter 5 for the default disclosure-based procedure and the sub-type override paths.                                                                                                                   | string (vct)  | urn:eudi:pid:nl:1 |
+| **Data Identifier**        | **Definition**                                                                                                                                                                                           | **Data type** | **Example value** |
+|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-------------------|
+| issuing_authority          | Name of the administrative authority that issued the permit.                                                                                                                                             | string        | Gemeente Nijmegen |
+| issuing_country            | Alpha-2 country code (ISO 3166-1) of the country of the issuing authority.                                                                                                                               | string        | NL                |
+| attestation_legal_category | Legal category under which the attestation is issued. For permits this value is always `"PuB-EAA"`.                                                                                                      | string        | PuB-EAA           |
+| cryptographically_bound_to | Identifier (`vct`) of the anchor credential bound to this attestation via the shared WSCA/WSCD. See note below and Chapter 5 for the default disclosure-based procedure and the sub-type override paths. | string (vct)  | urn:eudi:pid:nl:1 |
 
 Note on `cryptographically_bound_to`. The value of this field is determined by the issuance procedure specified in [Chapter 2](#2-extension-model). Under the default — disclosure-based issuance against the granting authority's product registry — the field carries the `vct` of the owner credential disclosed at issuance: `urn:eudi:pid:<cc>:1` for an owner recorded by BSN, or the `vct` of the KvK registration attestation (or, once published, the EUDI LPID attestation) for an owner recorded by KvK number. A sub-type Rulebook MAY override this per the *Sub-type overrides* in Chapter 2 — either by anchoring against a different authoritative registry (e.g. an RDW vehicle-keeper attestation) or by waiving cross-credential binding entirely, in which case this field SHALL be omitted from issued attestations and the sub-type SHALL provide the prose justification required by Chapter 2. The selected anchor credential SHALL itself be a device-bound credential issued to the same Wallet Unit, so that the shared-WSCA/WSCD proof can be obtained. A sub-type Rulebook silent on this point inherits the default.
 
@@ -256,7 +256,7 @@ The **Selectively disclosable** column specifies, for each claim, whether the At
 The following Private Names specific to the attestation type defined in this document are to be used for permits:
 
 | **Data Identifier**        | **Attribute identifier**   | **Encoding format**         | **Notes**                                                                                   | **Selectively disclosable** |
-| -------------------------- | -------------------------- | --------------------------- | ------------------------------------------------------------------------------------------- | --------------------------- |
+|----------------------------|----------------------------|-----------------------------|---------------------------------------------------------------------------------------------|-----------------------------|
 | upl_naam                   | upl_naam                   | string                      | Defined in [Section 3.2](#32-mandatory-attributes). Value drawn from the Dutch UPL register | MUST                        |
 | product_naam               | product_naam               | string                      | Defined in [Section 3.2](#32-mandatory-attributes)                                          | MUST                        |
 | product_type_code          | product_type_code          | string                      | Defined in [Section 3.2](#32-mandatory-attributes)                                          | MUST                        |
@@ -272,14 +272,14 @@ The following Private Names specific to the attestation type defined in this doc
 
 The following JWT and SD-JWT VC envelope claims SHALL be populated as indicated. These claims are not defined by this Rulebook; their syntax and semantics are governed by the cited specifications.
 
-| **Claim** | **Source**  | **Population rule**                                                                          |
-| --------- | ----------- | -------------------------------------------------------------------------------------------- |
-| iss       | [RFC 7519]  | The Attestation Provider's identifier as registered in the QTSP Trusted List; see Chapter 6. |
-| iat       | [RFC 7519]  | Time of issuance.                                                                            |
-| nbf       | [RFC 7519]  | Same NumericDate as `iat`; the attestation is technically valid immediately at issuance.     |
+| **Claim** | **Source**  | **Population rule**                                                                                                 |
+|-----------|-------------|---------------------------------------------------------------------------------------------------------------------|
+| iss       | [RFC 7519]  | The Attestation Provider's identifier as registered in the QTSP Trusted List; see Chapter 6.                        |
+| iat       | [RFC 7519]  | Time of issuance.                                                                                                   |
+| nbf       | [RFC 7519]  | Same NumericDate as `iat`; the attestation is technically valid immediately at issuance.                            |
 | exp       | [RFC 7519]  | NumericDate for 00:00:00 UTC two months after `geldig_tot` (default grace period; sub-type Rulebooks MAY override). |
-| cnf       | [SD-JWT VC] | Public key of the device-bound key pair; see [Key binding (`cnf`)](#key-binding-cnf).        |
-| vct       | [SD-JWT VC] | The URN defined in [Verifiable Credential Type (`vct`)](#verifiable-credential-type-vct).    |
+| cnf       | [SD-JWT VC] | Public key of the device-bound key pair; see [Key binding (`cnf`)](#key-binding-cnf).                               |
+| vct       | [SD-JWT VC] | The URN defined in [Verifiable Credential Type (`vct`)](#verifiable-credential-type-vct).                           |
 
 Because `geldig_van` and `geldig_tot` are `full-date` values (no time component) while `nbf` and `exp` are NumericDate values (seconds since epoch, per [RFC 7519]), `exp` is set to the start of the day *after* `geldig_tot` so that the attestation remains valid throughout the entirety of the `geldig_tot` calendar day in UTC.
 
@@ -387,6 +387,12 @@ Re-issuance of permits is currently governed only by the issuance requirements i
 *Mechanisms for the provision of a trust anchor that SHALL
 be used for the verification of an attestation SHALL be defined in this section.*
 
+Permit attestations defined by this Rulebook are PuB-EAAs signed by an Attestation Provider holding a qualified certificate issued by a QTSP. The Attestation Provider MAY be the issuing authority itself or a mandated intermediary (such as a broker or shared-service provider) acting on its behalf.
+
+Relying Parties SHALL verify the qualified electronic signature or seal over the SD-JWT VC using the Attestation Provider's certificate, included in the x5c header claim, and SHALL validate the certificate chain up to the applicable QTSP trust anchor. The trust anchor SHALL be obtained from the national Trusted List via the EU List of Trusted Lists (LOTL).
+
+The issuing authority SHALL ensure that any intermediary it mandates holds the appropriate qualified status and is registered on the applicable Trusted List.
+
 The ARF specifies the following for PuB-EAAs:
 
 > For PuB-EAAs, the Relying Party Instance verifies a PuB-EAA by first
@@ -422,7 +428,7 @@ This chapter records the compliance of this Rulebook with Annex VII of the [Euro
 The nine points of Annex VII enumerate the contents that an electronic attestation issued by or on behalf of a public sector body responsible for an authentic source (a PuB-EAA) must contain. Points already wrapped by an ARB rule defer to that row in the table of [Section 8.2](#82-topic-12-of-the-arf--attestation-rulebook-requirements).
 
 | Point | Subject                                                    | Applicable              | Where satisfied                                               |
-| ----- | ---------------------------------------------------------- | ----------------------- | ------------------------------------------------------------- |
+|-------|------------------------------------------------------------|-------------------------|---------------------------------------------------------------|
 | (a)   | Indication that the attestation is a PuB-EAA               | Covered by ARB_11       | §3.5 — `attestation_legal_category` fixed to `"PuB-EAA"`      |
 | (b)   | Data representing the issuing public body                  | Covered by ARB_14       | §3.5 — name + Member State (registration number not included) |
 | (c)   | Data representing the subject entity                       | Covered by ARB_16       | §3.5, Chapter 5 — `cryptographically_bound_to` (default: PID) |
@@ -442,7 +448,7 @@ The **Applies** column has three values:
 - **Deferred** — the base sets a default but explicitly delegates the concrete choice to sub-type Rulebooks or to a separate procedural step.
 
 | ARB     | Topic 12 subject                                                        | Applies               | Where satisfied                                                              |
-| ------- | ----------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------- |
+|---------|-------------------------------------------------------------------------|-----------------------|------------------------------------------------------------------------------|
 | ARB_01  | Format choice (QEAA / PuB-EAA): mdoc and/or SD-JWT VC                   | Yes                   | §4.1 (mdoc excluded); §4.2 (SD-JWT VC adopted)                               |
 | ARB_01a | Format choice for non-qualified EAA                                     | No                    | Not a non-qualified EAA                                                      |
 | ARB_01b | SD-JWT VC complies with the [HAIP] profile                              | Yes                   | §4.2                                                                         |
@@ -486,16 +492,16 @@ Beyond Topic 12, two other ARF topics contain Rulebook-author obligations, neith
 
 ## 9 References
 
-| **Item Reference**                     | **Standard name/details**                                                                                                                                                                                                                                                                           |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [European Digital Identity Regulation] | [Regulation (EU) 2024/1183](https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:L_202401183) of the European Parliament and of the Council of 11 April 2024 amending Regulation (EU) No 910/2014 as regards establishing the European Digital Identity Framework                            |
-| [HAIP]                                 | Yasuda, K. *et al,* OpenID4VC High Assurance Interoperability Profile, OpenId Foundation, Version draft-03                                                                                                                                                                                          |
-| [IANA-JWT-Claims]                      | IANA JSON Web Token Claims Registry. Available: <https://www.iana.org/assignments/jwt/jwt.xhtml>                                                                                                                                                                                                    |
-| [ISO/IEC 18013-5]                      | ISO/IEC 18013-5, Personal identification --- ISO-compliant driving licence - Part 5: Mobile driving licence (mDL) application, First edition, 2021-09                                                                                                                                               |
-| [OIDC]                                 | Sakimura, N. et al., "OpenID Connect Core 1.0", OpenID Foundation. Available: <https://openid.net/specs/openid-connect-core-1_0.html>                                                                                                                                                               |
-| [RFC 3339]                             | RFC 3339  - Date and Time on the Internet: Timestamps, G. Klyne et al., July 2002                                                                                                                                                                                                                   |
-| [RFC 8610]                             | RFC 8610  - Concise Data Definition Language (CDDL): A Notational Convention to Express Concise Binary Object Representation (CBOR) and JSON Data Structures, H. Birkholz et al., June 2019                                                                                                         |
-| [RFC 8943]                             | RFC 8943  - Concise Binary Object Representation (CBOR) Tags for Date, M. Jones et al., November 2020                                                                                                                                                                                               |
-| [RFC 8949]                             | RFC 8949 - Concise Binary Object Representation (CBOR), C. Bormann et al., December 2020                                                                                                                                                                                                            |
-| [SD-JWT VC]                            | SD-JWT-based Verifiable Credentials (SD-JWT VC). Available: <https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/>, version draft-ietf-oauth-sd-jwt-vc-09                                                                                                                                   |
-| [W3C VCDM v2.0]                        | Sporny, M. *et al,* Verifiable Credentials Data Model v2.0, W3C Recommendation.                                                                                                                                                                                                                     |
+| **Item Reference**                     | **Standard name/details**                                                                                                                                                                                                                                                |
+|----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [European Digital Identity Regulation] | [Regulation (EU) 2024/1183](https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:L_202401183) of the European Parliament and of the Council of 11 April 2024 amending Regulation (EU) No 910/2014 as regards establishing the European Digital Identity Framework |
+| [HAIP]                                 | Yasuda, K. *et al,* OpenID4VC High Assurance Interoperability Profile, OpenId Foundation, Version draft-03                                                                                                                                                               |
+| [IANA-JWT-Claims]                      | IANA JSON Web Token Claims Registry. Available: <https://www.iana.org/assignments/jwt/jwt.xhtml>                                                                                                                                                                         |
+| [ISO/IEC 18013-5]                      | ISO/IEC 18013-5, Personal identification --- ISO-compliant driving licence - Part 5: Mobile driving licence (mDL) application, First edition, 2021-09                                                                                                                    |
+| [OIDC]                                 | Sakimura, N. et al., "OpenID Connect Core 1.0", OpenID Foundation. Available: <https://openid.net/specs/openid-connect-core-1_0.html>                                                                                                                                    |
+| [RFC 3339]                             | RFC 3339  - Date and Time on the Internet: Timestamps, G. Klyne et al., July 2002                                                                                                                                                                                        |
+| [RFC 8610]                             | RFC 8610  - Concise Data Definition Language (CDDL): A Notational Convention to Express Concise Binary Object Representation (CBOR) and JSON Data Structures, H. Birkholz et al., June 2019                                                                              |
+| [RFC 8943]                             | RFC 8943  - Concise Binary Object Representation (CBOR) Tags for Date, M. Jones et al., November 2020                                                                                                                                                                    |
+| [RFC 8949]                             | RFC 8949 - Concise Binary Object Representation (CBOR), C. Bormann et al., December 2020                                                                                                                                                                                 |
+| [SD-JWT VC]                            | SD-JWT-based Verifiable Credentials (SD-JWT VC). Available: <https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/>, version draft-ietf-oauth-sd-jwt-vc-09                                                                                                        |
+| [W3C VCDM v2.0]                        | Sporny, M. *et al,* Verifiable Credentials Data Model v2.0, W3C Recommendation.                                                                                                                                                                                          |
