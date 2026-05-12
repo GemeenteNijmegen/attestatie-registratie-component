@@ -63,6 +63,12 @@ const { status } = await arc.status({ sessionId: result.sessionId });
 await arc.revoke({ sessionId });
 ```
 
+## Docker voorbeeld
+
+Voor een werkend voorbeeld van hoe ARC kan worden ingezet als een standalone HTTP server (bijv. in een container-omgeving), zie de [docker](./docker) directory.
+
+Dit voorbeeld bevat een complete setup met een Express API en PostgreSQL database om ARC snel lokaal uit te proberen.
+
 ## Documentatie
 
 - [Architectuur](docs/architectuur.md) — Hoe ARC werkt

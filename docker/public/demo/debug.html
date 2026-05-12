@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARC — Product Attestation Overview</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+      line-height: 1.5;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .product-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: transform 0.2s;
+    }
+
+    .product-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .product-info h2 {
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .product-info .id {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-type {
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .status-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .status-section h3 {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .status-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .status-item-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+
+    .session-id {
+      font-family: monospace;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .expires {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .empty-msg {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-style: italic;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    button.revoke-btn {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    button.revoke-btn:hover:not(:disabled) {
+      background: var(--danger);
+      color: white;
+    }
+
+    .refresh-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      backdrop-filter: blur(12px);
+      transform: translateY(200%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+    }
+
+    .toast.error {
+      background: #7f1d1d;
+      border: 1px solid #dc2626;
+      color: #fee2e2;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast.success {
+      background: #064e3b;
+      border: 1px solid #059669;
+      color: #d1fae5;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>ARC <span>Overview</span></h1>
+    <button class="refresh-btn" onclick="loadData()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 4v6h-6"></path>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+      Refresh Overview
+    </button>
+  </header>
+
+  <div class="container" id="overview-container">
+    <div class="empty-msg">Loading product data...</div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast show ${type}`;
+      setTimeout(() => toast.classList.remove('show'), 5000);
+    }
+
+    async function revokeSession(sessionId, btn) {
+      if (!confirm(`Revoke attestation for session ${sessionId}?`)) return;
+      btn.disabled = true;
+      try {
+        const res = await fetch('/debug/revoke', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const errorMsg = data.code ? `Error ${data.code}: ${data.error}` : data.error;
+          throw new Error(errorMsg || 'Failed to revoke');
+        }
+        showToast('Attestation revoked successfully');
+        loadData();
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'Never';
+      return new Date(dateStr).toLocaleString('nl-NL', {
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch('/debug/overview-data');
+        const data = await res.json();
+        const container = document.getElementById('overview-container');
+
+        if (data.length === 0) {
+          container.innerHTML = '<div class="empty-msg">No products found.</div>';
+          return;
+        }
+
+        container.innerHTML = data.map(p => `
+          <div class="product-card">
+            <div class="product-header">
+              <div class="product-info">
+                <h2>${p.naam}</h2>
+                <div class="id">Product UUID: ${p.id}</div>
+              </div>
+              <span class="badge badge-type">${p.type}</span>
+            </div>
+            
+            <div class="status-grid">
+              <div class="status-section">
+                <h3><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> Active Attestations</h3>
+                <div class="status-list">
+                  ${p.sessions.length === 0 ? '<div class="empty-msg">No active attestations</div>' : p.sessions.map(s => `
+                    <div class="status-item">
+                      <div class="status-item-header">
+                        <span class="session-id">${s.id.substring(0, 8)}...</span>
+                        <span class="expires">Expires: ${formatDate(s.expires_at)}</span>
+                      </div>
+                      <div style="font-size: 0.75rem; color: var(--text-muted)">
+                        Flow: ${s.attestation}
+                      </div>
+                      <button class="revoke-btn" onclick="revokeSession('${s.id}', this)">REVOKE ATTESTATION</button>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="status-section">
+                <h3><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Pending Issuances</h3>
+                <div class="status-list">
+                  ${p.callbacks.length === 0 ? '<div class="empty-msg">No pending callbacks</div>' : p.callbacks.map(c => `
+                    <div class="status-item" style="border-left: 3px solid var(--warning)">
+                      <div class="status-item-header">
+                        <span class="session-id">${c.id.substring(9, 17)}...</span>
+                        <span class="expires">State TTL: ${formatDate(c.expires_at)}</span>
+                      </div>
+                      <div style="font-size: 0.75rem; color: var(--text-muted)">
+                        Session: ${c.session_id.substring(0, 8)}...
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast('Error loading data: ' + err.message);
+      }
+    }
+
+    loadData();
+    setInterval(loadData, 10000);
+  </script>
+</body>
+
+</html>

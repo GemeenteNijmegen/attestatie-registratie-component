@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARC — Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f6f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      max-width: 640px;
+      margin: 0 auto 2rem;
+    }
+
+    header h1 { font-size: 1.5rem; font-weight: 700; }
+    header p  { margin-top: .4rem; color: #555; font-size: .95rem; }
+
+    .badge {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #1a56db;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+    }
+
+    #product-list {
+      max-width: 640px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e2e5ea;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .card-info { flex: 1; }
+    .card-info .naam { font-weight: 600; font-size: 1rem; margin-bottom: .3rem; }
+
+    button {
+      flex-shrink: 0;
+      background: #1a56db;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: .6rem 1.1rem;
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    button:hover:not(:disabled) { background: #1447c0; }
+    button:disabled { background: #93aee8; cursor: default; }
+
+    .error-msg {
+      margin-top: .5rem;
+      font-size: .8rem;
+      color: #c0392b;
+    }
+
+    #status {
+      max-width: 640px;
+      margin: 0 auto;
+      color: #555;
+      font-size: .95rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Attestatie Registratie — Demo</h1>
+    <p>Kies een product om toe te voegen aan uw digitale wallet.</p>
+  </header>
+
+  <div id="status">Producten laden…</div>
+  <div id="product-list" hidden></div>
+
+  <script>
+    async function start(id, btn, errorEl) {
+      btn.disabled = true;
+      btn.textContent = 'Bezig…';
+      errorEl.textContent = '';
+      try {
+        const res = await fetch('/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, source: 'openproduct' }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+        window.location.href = data.url;
+      } catch (err) {
+        errorEl.textContent = `Fout: ${err.message}`;
+        btn.disabled = false;
+        btn.textContent = 'Voeg toe aan wallet';
+      }
+    }
+
+    (async () => {
+      const statusEl = document.getElementById('status');
+      const listEl   = document.getElementById('product-list');
+      try {
+        const res = await fetch('/products');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const products = await res.json();
+
+        statusEl.hidden = true;
+        listEl.hidden = false;
+
+        for (const p of products) {
+          const errorEl = document.createElement('p');
+          errorEl.className = 'error-msg';
+
+          const btn = document.createElement('button');
+          btn.textContent = 'Voeg toe aan wallet';
+          btn.addEventListener('click', () => start(p.id, btn, errorEl));
+
+          const info = document.createElement('div');
+          info.className = 'card-info';
+          info.innerHTML = `<div class="naam">${p.naam}</div><span class="badge">${p.type}</span>`;
+          info.appendChild(errorEl);
+
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.appendChild(info);
+          card.appendChild(btn);
+          listEl.appendChild(card);
+        }
+      } catch (err) {
+        statusEl.textContent = `Kan producten niet laden: ${err.message}`;
+      }
+    })();
+  </script>
+</body>
+</html>
