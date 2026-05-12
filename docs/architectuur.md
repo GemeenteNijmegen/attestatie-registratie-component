@@ -27,7 +27,7 @@ ARC kent vijf kernabstracties in `src/core/`:
 | **Source** | Data ophalen uit extern systeem | `OpenProduct` — haalt producten op via de Open Product API |
 | **Attestation** | Brondata vertalen naar credential-attributen | `OpenProductStandplaatsvergunning` — vertaalt een product naar standplaatsvergunning-attributen |
 | **Provider** | Attestatie uitgeven en intrekken | `VerID` — gebruikt de Ver.ID OAuth-flow voor uitgifte |
-| **Store** | Tijdelijke sessiestate opslaan (met TTL) | `DynamoDb`, `InMemory` |
+| **Store** | Permanente sessie opslag. Gebruikt voor revocation en later voor koppeling van open product instances via UUID. | `PostgreSql`, `DynamoDb` |
 | **Session** | Sessiestate en callback-routing beheren | Intern gebruikt door ARC en providers |
 
 Elke abstractie volgt hetzelfde patroon: een abstracte basisklasse met een `options: { config }` constructor. Implementaties breiden de config-types uit met hun eigen velden.
@@ -69,7 +69,7 @@ src/
 ├── attestations/          # Attestatiemappings per bron
 │   └── openproduct/       # Mappings voor OpenProduct-data
 ├── providers/             # Providerimplementaties (VerID)
-├── adapters/              # Store-implementaties (InMemory, DynamoDB)
+├── adapters/              # Store-implementaties (PostgreSql, DynamoDb, InMemory)
 ├── schemas.ts             # Zod-schema's en types
 ├── ARC.ts                 # Orchestrator
 └── index.ts               # Barrel exports
