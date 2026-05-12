@@ -8,78 +8,126 @@ export interface PostgreSqlConfig extends StoreConfig {
    */
   pool: Pool;
   /**
-   * Name of the table to use for storage (default: arc_store)
+   * Name of the table to use for session storage (default: arc_sessions)
+   */
+  sessionTableName?: string;
+  /**
+   * Name of the table to use for callback storage (default: arc_callbacks)
+   */
+  callbackTableName?: string;
+  /**
+   * @deprecated use sessionTableName instead
    */
   tableName?: string;
 }
 
 /**
- * PostgreSQL adapter for ARC session storage.
+ * PostgreSQL adapter for ARC storage.
  *
- * Expects a table with the following schema (created automatically during init):
- * CREATE TABLE IF NOT EXISTS arc_store (
- *   id TEXT PRIMARY KEY,
- *   payload JSONB NOT NULL,
- *   expires_at TIMESTAMP
- * );
+ * Uses two tables (created automatically during init):
+ * - arc_sessions: for session data
+ * - arc_callbacks: for callback state
  */
 export class PostgreSql extends Store<PostgreSqlConfig> {
-  private tableName: string;
+  public readonly sessionTableName: string;
+  public readonly callbackTableName: string;
   private initialized: Promise<void>;
 
   constructor(config: PostgreSqlConfig) {
     super({ config });
-    this.tableName = config.tableName ?? 'arc_store';
-    this.initialized = this.initTable();
+    this.sessionTableName = config.sessionTableName ?? config.tableName ?? 'arc_sessions';
+    this.callbackTableName = config.callbackTableName ?? 'arc_callbacks';
+    this.initialized = this.initTables();
   }
 
   /**
-   * Initializes the database table if it doesn't exist.
+   * Initializes the database tables if they don't exist.
    */
-  private async initTable(): Promise<void> {
+  private async initTables(): Promise<void> {
     try {
       await this.options.config.pool.query(`
-        CREATE TABLE IF NOT EXISTS ${this.tableName} (
+        CREATE TABLE IF NOT EXISTS ${this.sessionTableName} (
           id TEXT PRIMARY KEY,
-          payload JSONB NOT NULL,
+          product_id TEXT NOT NULL,
+          source TEXT NOT NULL,
+          attestation TEXT NOT NULL,
           expires_at TIMESTAMP
-        )
+        );
+        CREATE TABLE IF NOT EXISTS ${this.callbackTableName} (
+          id TEXT PRIMARY KEY,
+          session_id TEXT NOT NULL,
+          product_id TEXT NOT NULL,
+          source TEXT NOT NULL,
+          attestation TEXT NOT NULL,
+          expires_at TIMESTAMP
+        );
       `);
     } catch (error) {
-      console.error(`Failed to initialize PostgreSQL table ${this.tableName}:`, error);
+      console.error('Failed to initialize PostgreSQL tables:', error);
       throw error;
     }
+  }
+
+  private getTableName(id: string): string {
+    return id.startsWith('callback:') ? this.callbackTableName : this.sessionTableName;
   }
 
   async put(id: string, payload: Record<string, string>, options?: { ttlSeconds?: number }): Promise<void> {
     await this.initialized;
     const ttl = options?.ttlSeconds ?? this.defaultTtlSeconds;
     const expiresAt = ttl > 0 ? new Date(Date.now() + ttl * 1000) : null;
+    const tableName = this.getTableName(id);
 
-    await this.options.config.pool.query(`
-      INSERT INTO ${this.tableName} (id, payload, expires_at)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (id) DO UPDATE SET
-        payload = EXCLUDED.payload,
-        expires_at = EXCLUDED.expires_at
-    `, [id, JSON.stringify(payload), expiresAt]);
+    if (tableName === this.callbackTableName) {
+      await this.options.config.pool.query(`
+        INSERT INTO ${tableName} (id, session_id, product_id, source, attestation, expires_at)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (id) DO UPDATE SET
+          session_id = EXCLUDED.session_id,
+          product_id = EXCLUDED.product_id,
+          source = EXCLUDED.source,
+          attestation = EXCLUDED.attestation,
+          expires_at = EXCLUDED.expires_at
+      `, [id, payload.sessionId, payload.id, payload.source, payload.attestation, expiresAt]);
+    } else {
+      await this.options.config.pool.query(`
+        INSERT INTO ${tableName} (id, product_id, source, attestation, expires_at)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (id) DO UPDATE SET
+          product_id = EXCLUDED.product_id,
+          source = EXCLUDED.source,
+          attestation = EXCLUDED.attestation,
+          expires_at = EXCLUDED.expires_at
+      `, [id, payload.id, payload.source, payload.attestation, expiresAt]);
+    }
   }
 
   async get(id: string): Promise<Record<string, string>> {
     await this.initialized;
+    const tableName = this.getTableName(id);
     const result = await this.options.config.pool.query(`
-      SELECT payload, expires_at FROM ${this.tableName} WHERE id = $1
+      SELECT * FROM ${tableName} WHERE id = $1
     `, [id]);
 
     if (result.rows.length === 0) {
       throw new StoreNotFoundError(id);
     }
 
-    const { payload, expires_at } = result.rows[0];
+    const { product_id, source, attestation, expires_at, session_id } = result.rows[0];
 
     if (expires_at && new Date() > expires_at) {
       await this.delete(id);
       throw new StoreExpiredError(id);
+    }
+
+    const payload: Record<string, string> = {
+      id: product_id,
+      source,
+      attestation,
+    };
+
+    if (session_id) {
+      payload.sessionId = session_id;
     }
 
     return payload;
@@ -87,6 +135,7 @@ export class PostgreSql extends Store<PostgreSqlConfig> {
 
   async delete(id: string): Promise<void> {
     await this.initialized;
-    await this.options.config.pool.query(`DELETE FROM ${this.tableName} WHERE id = $1`, [id]);
+    const tableName = this.getTableName(id);
+    await this.options.config.pool.query(`DELETE FROM ${tableName} WHERE id = $1`, [id]);
   }
 }
