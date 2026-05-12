@@ -54,6 +54,8 @@ This Rulebook defines the base attestation type for **permits** issued by Dutch 
   - [6 Trust anchors](#6-trust-anchors)
   - [7 Revocation](#7-revocation)
   - [8 Compliance](#8-compliance)
+    - [8.1 Annex VII of the European Digital Identity Regulation](#81-annex-vii-of-the-european-digital-identity-regulation)
+    - [8.2 Topic 12 of the ARF — Attestation Rulebook requirements](#82-topic-12-of-the-arf--attestation-rulebook-requirements)
   - [9 References](#9-references)
 
 ### 1.3 Key words
@@ -377,7 +379,25 @@ that will be specified by the Commission.
 
 ## 8 Compliance
 
-This chapter records the compliance of this Rulebook with Topic 12 of the ARF (*Attestation Rulebooks*) and, through it, with the relevant points of Annex VII of the [European Digital Identity Regulation]. The table below is the authoritative cross-walk for every ARB rule defined in Topic 12; the rule identifiers `ARB_01` through `ARB_34` do not appear elsewhere in this document.
+This chapter records the compliance of this Rulebook with Annex VII of the [European Digital Identity Regulation] (the binding regulatory requirement) and with Topic 12 of the ARF (*Attestation Rulebooks*) (the technical companion to the regulation). The two cross-walks below are the authoritative compliance statement for this Rulebook. The rule identifiers `ARB_01` through `ARB_34` do not appear elsewhere in this document.
+
+### 8.1 Annex VII of the [European Digital Identity Regulation]
+
+The nine points of Annex VII enumerate the contents that an electronic attestation issued by or on behalf of a public sector body responsible for an authentic source (a PuB-EAA) must contain. Points already wrapped by an ARB rule defer to that row in the table of [Section 8.2](#82-topic-12-of-the-arf--attestation-rulebook-requirements).
+
+| Point | Subject                                                    | Applicable              | Where satisfied                                               |
+| ----- | ---------------------------------------------------------- | ----------------------- | ------------------------------------------------------------- |
+| (a)   | Indication that the attestation is a PuB-EAA               | Covered by ARB_11       | §3.5 — `attestation_legal_category` fixed to `"PuB-EAA"`      |
+| (b)   | Data representing the issuing public body                  | Covered by ARB_14       | §3.5 — `issuing_authority`, `issuing_country`                 |
+| (c)   | Data representing the subject entity                       | Covered by ARB_16       | §3.5, Chapter 5 — `cryptographically_bound_to` (default: PID) |
+| (d)   | The attested attribute(s)                                  | Yes — no ARB equivalent | Chapter 3 — the attribute set defined by this Rulebook        |
+| (e)   | Validity period                                            | Covered by ARB_18       | §3.2 (`geldig_van`, `geldig_tot`); §4.2 (`nbf`, `exp`)        |
+| (f)   | Attestation identity code + scheme of attestations         | Yes — no ARB equivalent | §3.2 — `kenmerk`; §4.2 — `vct` URN                            |
+| (g)   | Qualified electronic signature or seal of the issuing body | Yes — no ARB equivalent | Qualified signature over the SD-JWT VC; Chapter 6             |
+| (h)   | Location of the qualified certificate signing the PuB-EAA  | Covered by ARB_20       | Chapter 6 (QTSP Trusted List) + `x5c` JWS header (§4.2)       |
+| (i)   | Information for enquiring about validity status            | Yes — no ARB equivalent | Chapter 7 — concrete mechanism to be pinned (open question)   |
+
+### 8.2 Topic 12 of the ARF — Attestation Rulebook requirements
 
 The **Applies** column has three values:
 
@@ -425,13 +445,6 @@ The **Applies** column has three values:
 | ARB_32  | (empty in Topic 12)                                                     | —                     | —                                                                            |
 | ARB_33  | Cross-link from catalogue of attestation schemes to this Rulebook       | Deferred              | Performed at registration per [Commission Implementing Regulation 2025/1569] |
 | ARB_34  | State whether the attestation is device-bound                           | Yes                   | §4.2 *Key binding*, Chapter 5 — device-bound by default                      |
-
-The remaining requirements of Annex VII of the [European Digital Identity Regulation] that are not represented above by a single ARB rule, but that this Rulebook also satisfies, are:
-
-- **Annex VII point (d)** — the attested attribute(s) — by virtue of the attribute set defined in Chapter 3.
-- **Annex VII point (f)** — the attestation identity code and the indication of the scheme of attestations — by the per-credential `kenmerk` attribute (§3.2) and the `vct` URN (§4.2) respectively.
-- **Annex VII point (g)** — the qualified electronic signature or seal of the issuing body — by the qualified signature over the SD-JWT VC, anchored as specified in Chapter 6.
-- **Annex VII point (i)** — information for enquiring about the attestation's validity status — to be specified once the revocation mechanism in Chapter 7 is finalised.
 
 ## 9 References
 
