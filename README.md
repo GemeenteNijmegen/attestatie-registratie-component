@@ -8,7 +8,7 @@
 
 # Attestatie Registratie Component (ARC)
 
-**Gedeelde registry van Attestation Rulebooks voor rechtsgeldige PuB-EAAs van Nederlandse gemeenten, met een herbruikbare implementatie die deze rulebooks uitgeeft. Een initiatief van [Gemeente Nijmegen](https://www.nijmegen.nl/), [Ver.ID](https://ver.id/) en [Maykin Media](https://www.maykinmedia.nl/) binnen [Common Ground](https://commonground.nl).**
+**Gedeelde registry van Attestation Rulebooks voor rechtsgeldige PuB-EAAs van Nederlandse gemeenten, met een herbruikbare implementatie die deze rulebooks uitgeeft. Een initiatief van [Gemeente Nijmegen](https://www.nijmegen.nl/) in samenwerking met [Ver.iD](https://ver.id/) binnen [Common Ground](https://commonground.nl).**
 
 ## Wat is ARC?
 
@@ -103,7 +103,7 @@ ARC is in actieve ontwikkeling. De rulebooks in deze repository hebben de status
 
 ## Achtergrond
 
-Ontwikkeld door [Gemeente Nijmegen](https://www.nijmegen.nl/) in samenwerking met [Ver.ID](https://ver.id/) en [Maykin Media](https://www.maykinmedia.nl/). Ontstaan op de Common Ground Field Labs, georganiseerd door [VNG Realisatie](https://vng.nl/artikelen/common-ground).
+Ontwikkeld door [Gemeente Nijmegen](https://www.nijmegen.nl/) in samenwerking met [Ver.iD](https://ver.id/). Ontstaan op de Common Ground Field Labs, georganiseerd door [VNG Realisatie](https://vng.nl/artikelen/common-ground).
 
 ## Licentie
 
