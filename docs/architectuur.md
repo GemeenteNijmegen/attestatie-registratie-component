@@ -6,7 +6,7 @@ Het Attestatie Registratie Component (ARC) is een library die drie stappen orkes
 
 1. **Ophalen** — Data ophalen uit een bron (bijv. een product uit Open Product)
 2. **Mappen** — Brondata vertalen naar credential-attributen
-3. **Uitgeven** — De attestatie laten uitgeven door een provider (bijv. Ver.ID)
+3. **Uitgeven** — De attestatie laten uitgeven door een provider (bijv. Ver.iD)
 
 ```text
 ┌─────────┐      ┌──────────────┐      ┌──────────┐
@@ -15,7 +15,7 @@ Het Attestatie Registratie Component (ARC) is een library die drie stappen orkes
 └─────────┘      └──────────────┘      └──────────┘
      ↑                                       │
      │                                       ▼
-  OpenProduct                         Ver.ID / anders
+  OpenProduct                         Ver.iD / anders
 ```
 
 ## Kernabstracties
@@ -26,8 +26,8 @@ ARC kent vijf kernabstracties in `src/core/`:
 |---|---|---|
 | **Source** | Data ophalen uit extern systeem | `OpenProduct` — haalt producten op via de Open Product API |
 | **Attestation** | Brondata vertalen naar credential-attributen | `OpenProductStandplaatsvergunning` — vertaalt een product naar standplaatsvergunning-attributen |
-| **Provider** | Attestatie uitgeven en intrekken | `VerID` — gebruikt de Ver.ID OAuth-flow voor uitgifte |
-| **Store** | Permanente sessie opslag. Gebruikt voor revocation en later voor koppeling van open product instances via UUID. | `PostgreSql`, `DynamoDb` |
+| **Provider** | Attestatie uitgeven en intrekken | `VerID` — gebruikt de Ver.iD OAuth-flow voor uitgifte |
+| **Store** | Tijdelijke sessiestate opslaan (met TTL) | `DynamoDb`, `InMemory` |
 | **Session** | Sessiestate en callback-routing beheren | Intern gebruikt door ARC en providers |
 
 Elke abstractie volgt hetzelfde patroon: een abstracte basisklasse met een `options: { config }` constructor. Implementaties breiden de config-types uit met hun eigen velden.
@@ -54,10 +54,10 @@ arc.status(params)  → { sessionId, status } // Status opvragen
 arc.revoke(params)  → { sessionId }         // Attestatie intrekken
 ```
 
-Provider-specifieke endpoints (zoals de OAuth-callback van Ver.ID) zijn beschikbaar via `arc.provider`:
+Provider-specifieke endpoints (zoals de OAuth-callback van Ver.iD) zijn beschikbaar via `arc.provider`:
 
 ```ts
-arc.provider.callback(searchParams)  // Ver.ID-specifiek
+arc.provider.callback(searchParams)  // Ver.iD-specifiek
 ```
 
 ## Directorystructuur
@@ -85,3 +85,11 @@ ARC is ontworpen om uitgebreid te worden zonder de bestaande code aan te passen:
 - **Nieuwe store** → één bestand in `adapters/`
 
 Geen van deze wijzigingen raakt `ARC.ts` of andere bestaande bestanden.
+
+## Bouwen en testen
+
+```bash
+npx projen build      # compileren + lint + testen
+npx jest              # alleen testen
+npx tsc --noEmit      # alleen typecheck
+```

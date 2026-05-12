@@ -56,4 +56,5 @@ junit.xml
 !/.nvmrc
 .yarn
 .claude
+context/
 !/.projenrc.ts

@@ -76,13 +76,13 @@ export class VerID extends Provider<VerIDConfig, VerIDAttestationConfig> {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async status(_sessionId: string): Promise<SessionStatus> {
-    // TODO: call Ver.ID API to get issuance run status
+    // TODO: call Ver.iD API to get issuance run status
     throw new NotImplementedError('Status check');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async revoke(_sessionId: string): Promise<void> {
-    // TODO: call Ver.ID API to revoke issuance run
+    // TODO: call Ver.iD API to revoke issuance run
     throw new NotImplementedError('Revocation');
   }
 

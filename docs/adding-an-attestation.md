@@ -72,7 +72,7 @@ const arc = new ARC({
 
 ## 4. Configure the provider
 
-The provider needs to know about the new attestation. For Ver.ID, add the flow mapping:
+The provider needs to know about the new attestation. For Ver.iD, add the flow mapping:
 
 ```ts
 new VerID(

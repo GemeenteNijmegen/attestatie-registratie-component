@@ -62,7 +62,7 @@ describe('VerID', () => {
       }
     });
 
-    it('should pass mapping result as payload to Ver.ID client', async () => {
+    it('should pass mapping result as payload to Ver.iD client', async () => {
       const mappingResult = { bsn: '999999333', kenmerk: 'abc' };
       await provider.issue({ source: 'openproduct', id: 'product-123', attestation: 'standplaatsvergunning' }, mappingResult);
 

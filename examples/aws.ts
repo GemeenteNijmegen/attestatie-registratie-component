@@ -99,7 +99,7 @@ export async function issueHandler(event: { body: string }) {
 
 // --------------------------------------------------------------------------
 // Lambda: GET /callback?state=xxx&code=yyy
-// Hit by the user's browser after completing the Ver.ID wallet flow
+// Hit by the user's browser after completing the Ver.iD wallet flow
 // --------------------------------------------------------------------------
 
 export async function callbackHandler(event: { queryStringParameters: Record<string, string> }) {
