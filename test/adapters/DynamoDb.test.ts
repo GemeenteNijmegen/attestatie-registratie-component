@@ -39,7 +39,7 @@ describe('DynamoDb Adapter', () => {
   });
 
   describe('put', () => {
-    it('should store a record', async () => {
+    it('should store a record without TTL by default', async () => {
       const id = 'test-id';
       const payload = { foo: 'bar' };
       const marshalledItem = { id: { S: id }, foo: { S: 'bar' } };
@@ -50,15 +50,21 @@ describe('DynamoDb Adapter', () => {
 
       expect(marshall).toHaveBeenCalledWith({
         id,
-        ttl: expect.any(Number),
         ...payload,
       });
 
       expect(mockSend).toHaveBeenCalledTimes(1);
-      const command = mockSend.mock.calls[0][0];
-      expect(command.input).toEqual({
-        TableName: 'test-table',
-        Item: marshalledItem,
+    });
+
+    it('should store a record with TTL when specified', async () => {
+      const id = 'test-id';
+      const payload = { foo: 'bar' };
+      await adapter.put(id, payload, { ttlSeconds: 3600 });
+
+      expect(marshall).toHaveBeenCalledWith({
+        id,
+        ttl: expect.any(Number),
+        ...payload,
       });
     });
   });

@@ -12,7 +12,7 @@ export interface SessionOptions {
 }
 
 export class Session {
-  constructor(private readonly options: SessionOptions) {}
+  constructor(private readonly options: SessionOptions) { }
 
   async save(sessionId: string, context: SessionContext): Promise<void> {
     await this.options.store.put(sessionId, {
@@ -29,14 +29,6 @@ export class Session {
       id: record.id ?? '',
       attestation: record.attestation ?? '',
     };
-  }
-
-  async delete(sessionId: string): Promise<void> {
-    try {
-      await this.options.store.delete(sessionId);
-    } catch {
-      // Store record may have already expired via TTL
-    }
   }
 
   async saveCallback(state: string, sessionId: string, context: SessionContext): Promise<void> {
@@ -74,12 +66,12 @@ export class Session {
     try {
       await this.options.store.delete(`callback:${state}`);
     } catch {
-      // Store record may have already expired via TTL
+      // Store record may have already been deleted
     }
   }
 
-  async cleanupCallback(state: string, sessionId: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async cleanupCallback(state: string, _sessionId: string): Promise<void> {
     await this.deleteCallback(state);
-    await this.delete(sessionId);
   }
 }

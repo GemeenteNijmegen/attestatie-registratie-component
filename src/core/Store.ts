@@ -14,7 +14,7 @@ export abstract class Store<TConfig extends StoreConfig = StoreConfig> extends B
   }
 
   protected get defaultTtlSeconds(): number {
-    return this.options.config.defaultTtlSeconds ?? 3600;
+    return this.options.config.defaultTtlSeconds ?? 0;
   }
 
   abstract put(id: string, payload: Record<string, string>, options?: { ttlSeconds?: number }): Promise<void>;

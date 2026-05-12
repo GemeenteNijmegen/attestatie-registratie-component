@@ -22,7 +22,7 @@ ARC is opgebouwd uit pluggable abstracties:
 - **Source** — Haalt data op uit een extern systeem (bijv. Open Product API)
 - **Attestation** — Vertaalt brondata naar credential-attributen
 - **Provider** — Handelt de daadwerkelijke uitgifte en intrekking af
-- **Store** — Tijdelijke opslag voor sessiestate (bijv. DynamoDB)
+- **Store** — Opslag voor sessiestate
 
 Zie [docs/architectuur.md](docs/architectuur.md) voor een volledig overzicht.
 
