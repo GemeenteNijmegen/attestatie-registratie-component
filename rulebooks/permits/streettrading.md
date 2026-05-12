@@ -66,11 +66,7 @@ Not specified beyond [base.md §3.4](./base.md#34-conditional-attributes).
 
 ### 3.5 Mandatory metadata
 
-The mandatory metadata defined in [base.md §3.5](./base.md#35-mandatory-metadata) (`issuing_authority`, `issuing_country`, `attestation_legal_category`, `cryptographically_bound_to`) apply unchanged. For street-trading permits:
-
-- `attestation_legal_category` SHALL be `"PuB-EAA"`.
-- `cryptographically_bound_to` SHALL be `"urn:eudi:pid:nl:1"`.
-
+The mandatory metadata defined in [base.md §3.5](./base.md#35-mandatory-metadata) (`issuing_authority`, `issuing_country`, `attestation_legal_category`, `cryptographically_bound_to`) apply unchanged.
 
 No additional metadata is defined by this Rulebook.
 
@@ -104,7 +100,7 @@ The street-trading-specific claims are encoded as follows:
 | locatie             | locatie                  | string              | Defined in §3.2 | MUST                        |
 | type_locatie        | type_locatie             | string              | Defined in §3.2 | MUST                        |
 
-The encoding and disclosability of all inherited claims (`upl_naam`, `product_naam`, `product_type_code`, `kenmerk`, `geldig_van`, `geldig_tot`, `issuing_authority`, `issuing_country`, `attestation_legal_category`, `cryptographically_bound_to`) are governed by [base.md §4.2](./base.md#42-sd-jwt-vc-based-encoding).
+The encoding and disclosability of all inherited claims are governed by [base.md §4.2](./base.md#42-sd-jwt-vc-based-encoding).
 
 #### Example
 
