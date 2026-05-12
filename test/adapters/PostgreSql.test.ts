@@ -32,11 +32,11 @@ describe('PostgreSql Adapter', () => {
 
   it('should handle updates (upsert)', async () => {
     const id = 'test-id';
-    await adapter.put(id, { version: '1' });
-    await adapter.put(id, { version: '2' });
+    await adapter.put(id, { ...standplaatsvergunningContext, attestation: 'v1' });
+    await adapter.put(id, { ...standplaatsvergunningContext, attestation: 'v2' });
 
     const retrieved = await adapter.get(id);
-    expect(retrieved).toEqual({ version: '2' });
+    expect(retrieved.attestation).toBe('v2');
   });
 
   it('should throw StoreNotFoundError for missing records', async () => {
@@ -56,7 +56,7 @@ describe('PostgreSql Adapter', () => {
     const payload = standplaatsvergunningContext as any;
     await adapter.put(id, payload, { ttlSeconds: 3600 });
 
-    const result = await pool.query('SELECT expires_at FROM arc_store WHERE id = $1', [id]);
+    const result = await pool.query(`SELECT expires_at FROM ${adapter.sessionTableName} WHERE id = $1`, [id]);
     expect(result.rows[0].expires_at).toBeInstanceOf(Date);
   });
 
@@ -71,7 +71,7 @@ describe('PostgreSql Adapter', () => {
     expect(await adapter.get(id)).toEqual(payload);
 
     // Manually update expires_at to the past to simulate expiration
-    await pool.query(`UPDATE ${adapter.tableName} SET expires_at = $1 WHERE id = $2`, [new Date(Date.now() - 1000), id]);
+    await pool.query(`UPDATE ${adapter.sessionTableName} SET expires_at = $1 WHERE id = $2`, [new Date(Date.now() - 1000), id]);
 
     await expect(adapter.get(id)).rejects.toThrow(StoreExpiredError);
   });
@@ -93,7 +93,7 @@ describe('PostgreSql Adapter', () => {
       expect(retrieved).toEqual(context);
     });
 
-    it('should handle callback states with UUIDs', async () => {
+    it('should handle callback states with UUIDs and store them in the correct table', async () => {
       const state = 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6';
       const sessionId = '550e8400-e29b-41d4-a716-446655440000';
       const context = standplaatsvergunningContext;
@@ -103,6 +103,16 @@ describe('PostgreSql Adapter', () => {
 
       expect(retrieved.sessionId).toBe(sessionId);
       expect(retrieved.context).toEqual(context);
+
+      // Verify it's in the callbacks table and NOT in the sessions table
+      const callbackId = `callback:${state}`;
+      const callbackResult = await pool.query(`SELECT product_id, session_id FROM ${adapter.callbackTableName} WHERE id = $1`, [callbackId]);
+      expect(callbackResult.rows.length).toBe(1);
+      expect(callbackResult.rows[0].product_id).toBe(context.id);
+      expect(callbackResult.rows[0].session_id).toBe(sessionId);
+
+      const sessionResult = await pool.query(`SELECT id FROM ${adapter.sessionTableName} WHERE id = $1`, [callbackId]);
+      expect(sessionResult.rows.length).toBe(0);
     });
   });
 
