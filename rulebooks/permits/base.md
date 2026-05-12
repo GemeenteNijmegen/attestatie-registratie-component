@@ -446,6 +446,8 @@ The **Applies** column has three values:
 | ARB_33  | Cross-link from catalogue of attestation schemes to this Rulebook       | Deferred              | Performed at registration per [Commission Implementing Regulation 2025/1569] |
 | ARB_34  | State whether the attestation is device-bound                           | Yes                   | §4.2 *Key binding*, Chapter 5 — device-bound by default                      |
 
+Beyond Topic 12, two other ARF topics contain Rulebook-author obligations, neither of which applies here: Topic 7 (VCR_02, revocation policy declaration) applies only to non-qualified EAAs — for PuB-EAAs the same obligation is wrapped by ARB_23 above; Topic 20 (SUA_02 and SUA_02a, transactional data for payment attestations) applies only to Strong User Authentication attestations, which permits are not. No other ARF topic imposes Rulebook-author requirements.
+
 ## 9 References
 
 | **Item Reference**                     | **Standard name/details**                                                                                                                                                                                                                                                                           |
