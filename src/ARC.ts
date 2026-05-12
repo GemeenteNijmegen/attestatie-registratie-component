@@ -95,6 +95,9 @@ export class ARC<TProvider extends Provider<any, any> = Provider> extends Base {
   }
 
   async revoke(params: RevokeParams): Promise<RevokeResult> {
+    // TODO: revoke should (also) be able to be triggered by open product id,
+    // so we can start a revoke from within open product with a button.
+    // This way, open product instances require no knowledge of ARC.
     const validated = RevokeParamsSchema.parse(params);
     await this.options.provider.revoke(validated.sessionId);
     return { sessionId: validated.sessionId };

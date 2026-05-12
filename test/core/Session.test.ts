@@ -20,18 +20,6 @@ describe('Session', () => {
     });
   });
 
-  describe('delete', () => {
-    it('should remove a session', async () => {
-      await session.save('session-1', standplaatsvergunningContext);
-      await session.delete('session-1');
-
-      await expect(store.get('session-1')).rejects.toThrow();
-    });
-
-    it('should not throw when session does not exist', async () => {
-      await expect(session.delete('nonexistent')).resolves.toBeUndefined();
-    });
-  });
 
   describe('saveCallback and getCallback', () => {
     it('should store and retrieve callback state', async () => {
@@ -66,14 +54,14 @@ describe('Session', () => {
   });
 
   describe('cleanupCallback', () => {
-    it('should remove both callback state and session', async () => {
+    it('should remove callback state but keep session', async () => {
       await session.save('session-1', standplaatsvergunningContext);
       await session.saveCallback('state-abc', 'session-1', standplaatsvergunningContext);
 
       await session.cleanupCallback('state-abc', 'session-1');
 
       await expect(store.get('callback:state-abc')).rejects.toThrow();
-      await expect(store.get('session-1')).rejects.toThrow();
+      await expect(store.get('session-1')).resolves.toEqual(standplaatsvergunningContext);
     });
   });
 });

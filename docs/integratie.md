@@ -34,7 +34,7 @@ const provider = new VerID(
 
 ### 2. Store
 
-Tijdelijke opslag voor sessiestate. Records verlopen automatisch (standaard 1 uur).
+Permanente opslag voor sessies. Records verlopen standaard niet, zodat revocatie later mogelijk blijft.
 
 ```ts
 import { DynamoDb, InMemory } from '@gemeentenijmegen/attestatie-registratie-component';
@@ -42,7 +42,7 @@ import { DynamoDb, InMemory } from '@gemeentenijmegen/attestatie-registratie-com
 // Productie: DynamoDB (regio en credentials via AWS SDK defaults)
 const store = new DynamoDb({
   tableName: 'arc-sessions',
-  defaultTtlSeconds: 3600,
+  defaultTtlSeconds: 0, // 0 = oneindig
 });
 
 // Lokaal ontwikkelen: in-memory

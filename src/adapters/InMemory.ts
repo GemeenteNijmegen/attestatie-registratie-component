@@ -19,7 +19,7 @@ export class InMemory extends Store<InMemoryConfig> {
     const ttl = options?.ttlSeconds ?? this.defaultTtlSeconds;
     this.data.set(id, {
       payload,
-      expiresAt: Date.now() + ttl * 1000,
+      expiresAt: ttl === 0 ? Infinity : Date.now() + ttl * 1000,
     });
   }
 

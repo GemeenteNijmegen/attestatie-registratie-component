@@ -41,9 +41,16 @@ describe('InMemory', () => {
   });
 
   describe('TTL', () => {
-    it('should use default TTL of 3600 seconds', () => {
+    it('should use default TTL of 0 (infinite)', async () => {
       const defaultStore = new InMemory();
-      expect(defaultStore).toBeDefined();
+      await defaultStore.put('key-1', { foo: 'bar' });
+
+      jest.useFakeTimers();
+      jest.advanceTimersByTime(1000 * 60 * 60 * 24 * 365); // 1 year
+
+      const result = await defaultStore.get('key-1');
+      expect(result).toEqual({ foo: 'bar' });
+      jest.useRealTimers();
     });
 
     it('should accept custom TTL', () => {
