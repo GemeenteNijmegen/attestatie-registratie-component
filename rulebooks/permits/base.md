@@ -388,13 +388,13 @@ The nine points of Annex VII enumerate the contents that an electronic attestati
 | Point | Subject                                                    | Applicable              | Where satisfied                                               |
 | ----- | ---------------------------------------------------------- | ----------------------- | ------------------------------------------------------------- |
 | (a)   | Indication that the attestation is a PuB-EAA               | Covered by ARB_11       | §3.5 — `attestation_legal_category` fixed to `"PuB-EAA"`      |
-| (b)   | Data representing the issuing public body                  | Covered by ARB_14       | §3.5 — `issuing_authority`, `issuing_country`                 |
+| (b)   | Data representing the issuing public body                  | Covered by ARB_14       | §3.5 — name + Member State (registration number not included) |
 | (c)   | Data representing the subject entity                       | Covered by ARB_16       | §3.5, Chapter 5 — `cryptographically_bound_to` (default: PID) |
 | (d)   | The attested attribute(s)                                  | Yes — no ARB equivalent | Chapter 3 — the attribute set defined by this Rulebook        |
 | (e)   | Validity period                                            | Covered by ARB_18       | §3.2 (`geldig_van`, `geldig_tot`); §4.2 (`nbf`, `exp`)        |
 | (f)   | Attestation identity code + scheme of attestations         | Yes — no ARB equivalent | §3.2 — `kenmerk`; §4.2 — `vct` URN                            |
 | (g)   | Qualified electronic signature or seal of the issuing body | Yes — no ARB equivalent | Qualified signature over the SD-JWT VC; Chapter 6             |
-| (h)   | Location of the qualified certificate signing the PuB-EAA  | Covered by ARB_20       | Chapter 6 (QTSP Trusted List) + `x5c` JWS header (§4.2)       |
+| (h)   | Location of the qualified certificate signing the PuB-EAA  | Covered by ARB_20       | `x5c` + Trusted List (partial — explicit URL not yet defined) |
 | (i)   | Information for enquiring about validity status            | Yes — no ARB equivalent | Chapter 7 — concrete mechanism to be pinned (open question)   |
 
 ### 8.2 Topic 12 of the ARF — Attestation Rulebook requirements
@@ -414,23 +414,23 @@ The **Applies** column has three values:
 | ARB_03  | SD-JWT VC permitted as format                                           | Yes                   | §4.2 — exercised                                                             |
 | ARB_04  | Reference detail for W3C VCDM-compliant attestations                    | No                    | §4.3 — W3C VCDM not used                                                     |
 | ARB_05  | Unique attestation type value                                           | Yes                   | §4.2 — URN `urn:eudi:nl:vng:permit:v1`                                       |
-| ARB_06  | Define all attributes in an encoding-independent manner                 | Yes                   | Chapter 3                                                                    |
+| ARB_06  | Define all attributes in an encoding-independent manner                 | Yes                   | Chapter 3 (encoding-independent definitions); §4.2 (SD-JWT VC encoding)      |
 | ARB_06a | Attribute namespace for mdoc attestations                               | No                    | mdoc not issued (§4.1)                                                       |
-| ARB_06b | Claim naming for SD-JWT VC attestations                                 | Yes                   | §4.2 — Private Claim Names per [RFC 7519]                                    |
-| ARB_07  | Prefer attributes from existing catalogues                              | Yes                   | §3.1; §4.2 — UPL vocabulary reused for `upl_naam`                            |
+| ARB_06b | Claim naming for SD-JWT VC attestations                                 | Yes                   | §4.2 *Claim naming policy* — Private Claim Names per [RFC 7519]              |
+| ARB_07  | Prefer attributes from existing catalogues                              | Yes — considered      | Dutch UPL adopted for `upl_naam`; ARF Topic 25 catalogue not used            |
 | ARB_08  | Reuse existing identifier conventions and syntaxes                      | Yes                   | §4.2 — `lower_snake_case` ASCII identifiers                                  |
 | ARB_09  | Mark each attribute mandatory / optional / conditional                  | Yes                   | §3.2 – §3.7                                                                  |
 | ARB_10  | Domestic mdoc namespace                                                 | No                    | mdoc not issued (§4.1)                                                       |
 | ARB_11  | Annex VII point (a) — indication that the attestation is a PuB-EAA      | Yes                   | §3.5 — `attestation_legal_category` fixed to `"PuB-EAA"`                     |
 | ARB_12  | Annex V point (a) — indication for non-qualified EAA                    | No                    | Not a non-qualified EAA                                                      |
 | ARB_13  | Annex V point (b) — issuing QTSP data for a QEAA                        | No                    | Not a QEAA                                                                   |
-| ARB_14  | Annex VII point (b) — data representing the issuing public body         | Yes                   | §3.5 — `issuing_authority`, `issuing_country`                                |
+| ARB_14  | Annex VII point (b) — data representing the issuing public body         | Yes — partial         | §3.5 — `issuing_authority` (name), `issuing_country` (MS); no reg. number    |
 | ARB_15  | Annex V point (b) for non-qualified EAA                                 | No                    | Not a non-qualified EAA                                                      |
-| ARB_16  | Annex V / VII point (c) — data representing the subject entity          | Yes                   | §3.5, Chapter 5 — `cryptographically_bound_to` (default: PID)                |
+| ARB_16  | Annex V / VII point (c) — data representing the subject entity          | Yes — by design       | §3.5, Chapter 5 — `cryptographically_bound_to` (data via bound anchor)       |
 | ARB_17  | Annex V point (c) for non-qualified EAA                                 | No                    | Not a non-qualified EAA                                                      |
 | ARB_18  | Annex V / VII point (e) — validity period                               | Yes                   | §3.2 (`geldig_van`, `geldig_tot`); §4.2 (`nbf`, `exp`)                       |
 | ARB_19  | Annex V point (e) for non-qualified EAA                                 | No                    | Not a non-qualified EAA                                                      |
-| ARB_20  | Annex V / VII point (h) — qualified certificate / trust anchor location | Yes                   | Chapter 6 (QTSP Trusted List) + `x5c` JWS header (§4.2)                      |
+| ARB_20  | Annex V / VII point (h) — qualified certificate / trust anchor location | Yes — partial         | §4.2 envelope `x5c` + Chapter 6 (Trusted List); explicit URL not yet defined |
 | ARB_21  | Trust-anchor location for non-qualified EAA                             | No                    | Not a non-qualified EAA                                                      |
 | ARB_22  | Technical details for interoperability, security, and privacy           | Yes                   | Document as a whole                                                          |
 | ARB_23  | Revocation mechanism selection from Topic 7                             | Yes — pending         | Chapter 7 — concrete mechanism to be pinned (open question)                  |
