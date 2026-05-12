@@ -85,3 +85,11 @@ ARC is ontworpen om uitgebreid te worden zonder de bestaande code aan te passen:
 - **Nieuwe store** → één bestand in `adapters/`
 
 Geen van deze wijzigingen raakt `ARC.ts` of andere bestaande bestanden.
+
+## Bouwen en testen
+
+```bash
+npx projen build      # compileren + lint + testen
+npx jest              # alleen testen
+npx tsc --noEmit      # alleen typecheck
+```
