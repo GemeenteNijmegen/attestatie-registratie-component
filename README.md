@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="docs/hero.svg" alt="Attestatie Registratie Component (ARC)" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/hero-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/hero-light.svg">
+    <img src="docs/hero-light.svg" alt="Attestatie Registratie Component (ARC)" />
+  </picture>
 </p>
 
 # Attestatie Registratie Component (ARC)
