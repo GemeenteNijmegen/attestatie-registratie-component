@@ -68,7 +68,7 @@ const arc = new ARC({
   // ...
 });
 
-await arc.issue({ source: 'my-source', id: 'item-123', attestation: '...' });
+await arc.issue({ source: 'my-source', id: 'item-123' });
 ```
 
 ## Notes

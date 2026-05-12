@@ -33,25 +33,32 @@ npm install @gemeentenijmegen/attestatie-registratie-component
 ```
 
 ```ts
-import { ARC, OpenProduct, OpenProductStandplaatsvergunning, VerID, DynamoDb } from '@gemeentenijmegen/attestatie-registratie-component';
+import {
+  ARC,
+  OpenProduct,
+  OpenProductStandplaatsvergunning,
+  VerID,
+  DynamoDb,
+} from "@gemeentenijmegen/attestatie-registratie-component";
 
 const arc = new ARC({
   provider: new VerID(
-    { issuerUri: '...', redirectUri: '...', clientSecret: '...' },
-    { 'standplaatsvergunning': { flowUuid: '...' } },
+    { issuerUri: "...", redirectUri: "...", clientSecret: "..." },
+    { standplaatsvergunning: { flowUuid: "..." } },
   ),
-  store: new DynamoDb({ tableName: 'arc-sessions' }),
-  sources: [new OpenProduct({ baseUrl: '...', apiToken: '...' })],
+  store: new DynamoDb({ tableName: "arc-sessions" }),
+  sources: [new OpenProduct({ baseUrl: "...", apiToken: "..." })],
   attestations: [new OpenProductStandplaatsvergunning()],
 });
 
-arc.on('issuance', async (event) => {
+arc.on("issuance", async (event) => {
   await mijnDatabase.update(event.sessionId, { status: event.status });
 });
 
 // Attestatie uitgeven
 const result = await arc.issue({
-  source: 'openproduct', id: 'product-uuid',
+  source: "openproduct",
+  id: "product-uuid",
 });
 // result.type === 'oauth' → redirect naar result.url
 // result.type === 'direct' → direct afgerond

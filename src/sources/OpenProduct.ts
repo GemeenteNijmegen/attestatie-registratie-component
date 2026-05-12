@@ -1,7 +1,6 @@
 import * as z from 'zod';
 import { Source, SourceConfig } from '../core/Source';
 import { SourceFetchError, SourceParseError } from '../errors';
-import { IssuanceEvent } from '../schemas.js';
 
 export const StatusEnum = z.enum([
   'initieel',
@@ -114,66 +113,6 @@ export interface OpenProductConfig extends SourceConfig {
 export class OpenProduct extends Source<Product, OpenProductConfig> {
   constructor(config: OpenProductConfig) {
     super({ name: 'openproduct', config });
-  }
-
-  protected override onInit(): void {
-    this.on('issuance', async (event) => {
-      if (event.context.source !== this.name) return;
-      await this.updateProduct(event);
-    });
-  }
-
-  async updateProduct(event: IssuanceEvent): Promise<void> {
-    // TODO, we have to update this to properly handle the issuance in the openproduct
-    console.dir(
-      `Updating product ${event.context.id} with session ID ${event.sessionId} with status ${event.status}`,
-    );
-
-    // TODO: remove after demo event
-    if (process.env.OPENPRODUCT_WRITE_BACK_FEATURE_FLAG !== 'enabled') {
-      console.warn('OpenProduct write-back is disabled. Skipping update.');
-      return;
-    }
-
-    // Fetch the existing product to get the current dataobject
-    const existing = await this.fetch(event.context.id);
-    const existingDataobject = (existing.dataobject ?? {}) as Record<
-      string,
-      unknown
-    >;
-
-    // Patch
-    await this.patch(event.context.id, {
-      dataobject: {
-        ...existingDataobject,
-        issuanceEvents: [
-          ...((existingDataobject.issuanceEvents as unknown[]) ?? []),
-          {
-            sessionId: event.sessionId,
-            status: event.status,
-            updatedAt: new Date().toISOString(),
-          },
-        ],
-      },
-    });
-  }
-
-  async patch(id: string, body: Record<string, unknown>): Promise<void> {
-    const url = `${this.options.config.baseUrl}/producten/${id}`;
-
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Token ${this.options.config.apiToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(10_000),
-    });
-
-    if (!response.ok) {
-      throw new SourceFetchError(response.status, response.statusText);
-    }
   }
 
   async fetch(id: string): Promise<Product> {

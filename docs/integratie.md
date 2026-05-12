@@ -145,7 +145,7 @@ Optioneel — voor het pollen van de sessiestatus:
 
 ```ts
 const result = await arc.status({ sessionId: request.queryStringParameters.sessionId });
-// result.status — 'pending' | 'issued' | 'revoked' | 'expired'
+// result.status — 'pending' | 'issued' | 'revoked' | 'expired' | 'aborted'
 ```
 
 ### Intrekken (POST /revoke)
