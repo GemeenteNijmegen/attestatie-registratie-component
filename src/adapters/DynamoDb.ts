@@ -28,11 +28,11 @@ export class DynamoDb extends Store<DynamoDbConfig> {
 
   async put(id: string, payload: Record<string, string>, options?: { ttlSeconds?: number }): Promise<void> {
     const ttl = options?.ttlSeconds ?? this.defaultTtlSeconds;
-    const expiresAt = Math.floor(Date.now() / 1000) + ttl;
+    const expiresAt = ttl === 0 ? undefined : Math.floor(Date.now() / 1000) + ttl;
 
     const item = marshall({
       [this.partitionKey]: id,
-      [this.ttlAttribute]: expiresAt,
+      ...(expiresAt ? { [this.ttlAttribute]: expiresAt } : {}),
       ...payload,
     });
 

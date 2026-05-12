@@ -22,6 +22,10 @@
       "type": "build"
     },
     {
+      "name": "@types/pg",
+      "type": "build"
+    },
+    {
       "name": "@typescript-eslint/eslint-plugin",
       "version": "^8",
       "type": "build"
@@ -64,6 +68,10 @@
       "type": "build"
     },
     {
+      "name": "pg-mem",
+      "type": "build"
+    },
+    {
       "name": "projen",
       "type": "build"
     },
@@ -93,6 +101,7 @@
     },
     {
       "name": "@ver-id/node-client",
+      "version": "^0.13.0",
       "type": "runtime"
     },
     {
@@ -101,6 +110,10 @@
     },
     {
       "name": "jsonwebtoken",
+      "type": "runtime"
+    },
+    {
+      "name": "pg",
       "type": "runtime"
     },
     {

@@ -69,7 +69,7 @@ src/
 ├── attestations/          # Attestatiemappings per bron
 │   └── openproduct/       # Mappings voor OpenProduct-data
 ├── providers/             # Providerimplementaties (VerID)
-├── adapters/              # Store-implementaties (InMemory, DynamoDB)
+├── adapters/              # Store-implementaties (PostgreSql, DynamoDb, InMemory)
 ├── schemas.ts             # Zod-schema's en types
 ├── ARC.ts                 # Orchestrator
 └── index.ts               # Barrel exports

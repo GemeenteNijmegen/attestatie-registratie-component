@@ -3,8 +3,8 @@
  *
  * This example shows how Gemeente Nijmegen uses ARC with:
  * - OpenProduct as the data source
- * - Ver.iD as the attestation provider
- * - DynamoDB for ephemeral session state
+ * - Ver.ID as the attestation provider
+ * - DynamoDB for permanent session storage
  * - Four Lambda functions: issue, callback, status, revoke
  */
 
@@ -35,7 +35,7 @@ function createARC() {
     ),
     store: new DynamoDb({
       tableName: process.env.ARC_STATE_TABLE!,
-      defaultTtlSeconds: 3600,
+      defaultTtlSeconds: 0, // 0 = infinite
     }),
     sources: [
       new OpenProduct({
