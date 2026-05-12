@@ -3,7 +3,7 @@
  *
  * This example shows how Gemeente Nijmegen uses ARC with:
  * - OpenProduct as the data source
- * - Ver.ID as the attestation provider
+ * - Ver.iD as the attestation provider
  * - DynamoDB for ephemeral session state
  * - Four Lambda functions: issue, callback, status, revoke
  */
@@ -99,7 +99,7 @@ export async function issueHandler(event: { body: string }) {
 
 // --------------------------------------------------------------------------
 // Lambda: GET /callback?state=xxx&code=yyy
-// Hit by the user's browser after completing the Ver.ID wallet flow
+// Hit by the user's browser after completing the Ver.iD wallet flow
 // --------------------------------------------------------------------------
 
 export async function callbackHandler(event: { queryStringParameters: Record<string, string> }) {

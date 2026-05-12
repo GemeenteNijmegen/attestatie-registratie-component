@@ -14,7 +14,7 @@ ARC heeft vier onderdelen nodig:
 
 ### 1. Provider
 
-De attestatie-provider die de daadwerkelijke uitgifte verzorgt. Voor Ver.ID:
+De attestatie-provider die de daadwerkelijke uitgifte verzorgt. Voor Ver.iD:
 
 ```ts
 import { VerID } from '@gemeentenijmegen/attestatie-registratie-component';
@@ -26,7 +26,7 @@ const provider = new VerID(
     clientSecret: process.env.VERID_CLIENT_SECRET!,
   },
   {
-    // Per attestatie de Ver.ID flow-configuratie
+    // Per attestatie de Ver.iD flow-configuratie
     'standplaatsvergunning': { flowUuid: 'uw-flow-uuid' },
   },
 );
