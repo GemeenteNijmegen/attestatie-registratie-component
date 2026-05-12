@@ -76,6 +76,12 @@ Een nieuw type credential rechtsgeldig uitgeven onder dit scheme is **twee taken
 
 Beide stappen landen in dezelfde pull request, zodat de rulebook en de implementatie samen worden gereviewd.
 
+## Docker voorbeeld
+
+Voor een werkend voorbeeld van hoe ARC kan worden ingezet als een standalone HTTP server (bijv. in een container-omgeving), zie de [docker](./docker) directory.
+
+Dit voorbeeld bevat een complete setup met een Express API en PostgreSQL database om ARC snel lokaal uit te proberen.
+
 ## Documentatie
 
 | Onderwerp | Document |
